@@ -1,0 +1,40 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version Type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - major
+        - minor
+        - patch
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+    - name: Git config
+      run: |
+        git config --global user.email "github@greenroomrobotics.com"
+        git config --global user.name "Github CI"
+    - name: Build and Publish - ${{ github.event.inputs.version }}
+      run: |
+        yarn docker:build
+        yarn docker:${{ github.event.inputs.version }}
+        yarn docker:tag
+        yarn docker:push
+    - name: Push
+      run: git push
