@@ -1,0 +1,28 @@
+{
+  "name": "ros_builder",
+  "version": "1.1.0",
+  "description": "Greenroom's base ROS2 image",
+  "main": "index.js",
+  "scripts": {
+    "docker:build": "docker build -f ./Dockerfile -t $npm_package_name .",
+    "docker:patch": "yarn version --patch",
+    "docker:minor": "yarn version --minor",
+    "docker:major": "yarn version --major",
+    "docker:login": "docker login ghcr.io",
+    "docker:tag": "docker tag $npm_package_name:latest ghcr.io/greenroom-robotics/$npm_package_name:$npm_package_version",
+    "docker:push": "docker push ghcr.io/greenroom-robotics/$npm_package_name:$npm_package_version",
+    "docker:push:patch": "yarn docker:build && yarn version --patch && yarn docker:tag && yarn docker:push",
+    "docker:push:minor": "yarn docker:build && yarn version --minor && yarn docker:tag && yarn docker:push",
+    "docker:push:major": "yarn docker:build && yarn version --major && yarn docker:tag && yarn docker:push"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/greenroom-robotics/ros_builder.git#main"
+  },
+  "author": "Russ Webber <russ.webber@greenroomrobotics.com>",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/greenroom-robotics/ros_builder/issues"
+  },
+  "homepage": "https://github.com/greenroom-robotics/ros_builder/tree/main#readme"
+}

@@ -1,0 +1,11 @@
+#!/bin/bash
+# Author: Russ Webber <russ.webber@greenroomrobotics.com>
+
+REPO=$1
+FILE_PATH=$2
+url=$(curl \
+  -H "Accept: application/vnd.github.v3+json" \
+  -u $GHCR_USERNAME:$GHCR_PAT \
+  https://api.github.com/repos/$REPO/contents/$FILE_PATH | jq --raw-output .download_url)
+if [[ "$url" == "null" ]]; then echo "Could not determine URL for GitHub file." >&2; exit 1; fi
+echo $url
