@@ -8,23 +8,26 @@ ENV RMW_IMPLEMENTATION rmw_fastrtps_cpp
 
 RUN apt-get update && apt-get install -y \
     build-essential \
-    fakeroot \
+    cmake \
+    curl \
     dpkg-dev \
     debhelper \
-    cmake \
+    dh-python \
+    fakeroot \
     git \
-    wget \
-    curl \
     jq \
+    libopus-dev \
+    libvpx-dev \
+    python3-bloom \
+    python3-catkin-pkg \
     python3-colcon-common-extensions \
     python3-flake8 \
     python3-pip \
     python3-pytest-cov \
     python3-setuptools \
     python3-vcstool \
-    libopus-dev \
-    libvpx-dev \
     ros-${ROS_DISTRO}-rmw-fastrtps-cpp \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 # Note, we install libopus-dev and libvpx-dev because aiortc needs it
