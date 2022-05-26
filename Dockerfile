@@ -44,9 +44,6 @@ RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/f
 RUN dpkg -r --force-depends "python3-rosdep"
 RUN pip install https://github.com/Greenroom-Robotics/rosdep/archive/1f560a73553e6e8d262cf0be19b6b384be90fbd2.zip
 
-# Add Greenroom rosdep keys
-RUN curl -L --output /etc/ros/rosdep/sources.list.d/30-greenroom.list `gh-http-url Greenroom-Robotics/rosdistro rosdep/sources.list.d/30-greenroom.list`
-
 RUN useradd --create-home --home /home/ros --shell /bin/bash --uid 1000 ros && \
     passwd -d ros && \
     usermod -a -G audio,video,sudo,plugdev,dialout ros
