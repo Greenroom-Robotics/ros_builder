@@ -41,7 +41,7 @@ RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/f
 
 # Install Greenroom's rosdep fork which does not check if packages are installed correctly.
 # this allows us to add paths to python packages stored in github where the path != package_name
-RUN apt-get remove python3-rosdep -y
+RUN dpkg -r --force-depends "python3-rosdep"
 RUN pip install https://github.com/Greenroom-Robotics/rosdep/archive/1f560a73553e6e8d262cf0be19b6b384be90fbd2.zip
 
 # Add Greenroom rosdep keys
