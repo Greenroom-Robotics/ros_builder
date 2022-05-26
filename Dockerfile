@@ -18,7 +18,6 @@ RUN apt-get update && apt-get install -y \
     jq \
     libopus-dev \
     libvpx-dev \
-    python3-bloom \
     python3-catkin-pkg \
     python3-colcon-common-extensions \
     python3-flake8 \
@@ -41,7 +40,7 @@ RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/f
 
 # Install Greenroom's rosdep fork which does not check if packages are installed correctly.
 # this allows us to add paths to python packages stored in github where the path != package_name
-RUN dpkg -r --force-depends "python3-rosdep"
+RUN apt-get remove python3-rosdep -y
 RUN pip install https://github.com/Greenroom-Robotics/rosdep/archive/1f560a73553e6e8d262cf0be19b6b384be90fbd2.zip
 
 RUN useradd --create-home --home /home/ros --shell /bin/bash --uid 1000 ros && \
@@ -57,5 +56,4 @@ RUN source /opt/ros/galactic/setup.sh && colcon build --merge-install --install-
 
 RUN mkdir /opt/greenroom && chown ros:ros /opt/greenroom
 
-WORKDIR /home/ros
 USER ros
