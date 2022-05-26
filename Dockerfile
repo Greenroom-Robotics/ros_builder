@@ -41,9 +41,6 @@ RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/f
 RUN apt-get remove python3-rosdep -y
 RUN pip install https://github.com/Greenroom-Robotics/rosdep/archive/1f560a73553e6e8d262cf0be19b6b384be90fbd2.zip
 
-# Add Greenroom rosdep keys
-RUN curl -L --output /etc/ros/rosdep/sources.list.d/30-greenroom.list `gh-http-url Greenroom-Robotics/rosdistro rosdep/sources.list.d/30-greenroom.list`
-
 RUN useradd --create-home --home /home/ros --shell /bin/bash --uid 1000 ros && \
     passwd -d ros && \
     usermod -a -G audio,video,sudo,plugdev,dialout ros
@@ -58,4 +55,3 @@ RUN source /opt/ros/galactic/setup.sh && colcon build --merge-install --install-
 RUN mkdir /opt/greenroom && chown ros:ros /opt/greenroom
 
 WORKDIR /home/ros
-USER ros
