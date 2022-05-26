@@ -8,23 +8,25 @@ ENV RMW_IMPLEMENTATION rmw_fastrtps_cpp
 
 RUN apt-get update && apt-get install -y \
     build-essential \
-    fakeroot \
+    cmake \
+    curl \
     dpkg-dev \
     debhelper \
-    cmake \
+    dh-python \
+    fakeroot \
     git \
-    wget \
-    curl \
     jq \
+    libopus-dev \
+    libvpx-dev \
+    python3-catkin-pkg \
     python3-colcon-common-extensions \
     python3-flake8 \
     python3-pip \
     python3-pytest-cov \
     python3-setuptools \
     python3-vcstool \
-    libopus-dev \
-    libvpx-dev \
     ros-${ROS_DISTRO}-rmw-fastrtps-cpp \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 # Note, we install libopus-dev and libvpx-dev because aiortc needs it
@@ -34,15 +36,12 @@ RUN apt-get update && apt-get install -y \
 ADD tools/* /usr/bin/
 
 # Install Greenroom fork of bloom
-RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/feature/fix-namespace.zip
+RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/david_revay/sc-4323/version-pinning-in-package-xml.zip
 
 # Install Greenroom's rosdep fork which does not check if packages are installed correctly.
 # this allows us to add paths to python packages stored in github where the path != package_name
 RUN apt-get remove python3-rosdep -y
-RUN pip install https://github.com/Greenroom-Robotics/rosdep/archive/1f560a73553e6e8d262cf0be19b6b384be90fbd2.zip
-
-# Add Greenroom rosdep keys
-RUN curl -L --output /etc/ros/rosdep/sources.list.d/30-greenroom.list `gh-http-url Greenroom-Robotics/rosdistro rosdep/sources.list.d/30-greenroom.list`
+RUN pip install https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/david_revay/sc-4323/version-pinning-in-package-xml.zip
 
 RUN useradd --create-home --home /home/ros --shell /bin/bash --uid 1000 ros && \
     passwd -d ros && \
@@ -57,5 +56,4 @@ RUN source /opt/ros/galactic/setup.sh && colcon build --merge-install --install-
 
 RUN mkdir /opt/greenroom && chown ros:ros /opt/greenroom
 
-WORKDIR /home/ros
 USER ros
