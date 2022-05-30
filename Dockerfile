@@ -56,11 +56,15 @@ RUN useradd --create-home --home /home/ros --shell /bin/bash --uid 1000 ros && \
 # Build external source packages
 WORKDIR /home/ros
 COPY ./external.repos ./external.repos
-RUN mkdir external
+COPY ./interfaces.repos ./interfaces.repos
+RUN mkdir external && mkdir interfaces
 RUN vcs import external < ./external.repos
+RUN vcs import interfaces < ./interfaces.repos
 RUN apt-get update && rosdep update && rosdep install -y -i --from-paths external
-RUN source /opt/ros/galactic/setup.sh && colcon build --merge-install --install-base /opt/ros/galactic --cmake-args -DBUILD_TESTING=OFF -DFASTDDS_STATISTICS=ON
 
-RUN mkdir /opt/greenroom && chown ros:ros /opt/greenroom
+# Install external first to ensure interfaces are built correctly
+RUN source /opt/ros/galactic/setup.sh && colcon build --base-paths external --merge-install --install-base /opt/ros/galactic --cmake-args -DBUILD_TESTING=OFF -DFASTDDS_STATISTICS=ON
+RUN source /opt/ros/galactic/setup.sh && colcon build --base-paths interfaces --merge-install --install-base /opt/ros/galactic --cmake-args -DBUILD_TESTING=OFF
 
+WORKDIR /home/ros
 USER ros
