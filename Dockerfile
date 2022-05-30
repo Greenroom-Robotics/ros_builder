@@ -21,8 +21,6 @@ RUN apt-get update && apt-get install -y \
     fakeroot \
     git \
     jq \
-    libopus-dev \
-    libvpx-dev \
     python3-catkin-pkg \
     python3-colcon-common-extensions \
     python3-flake8 \
@@ -34,10 +32,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Note, we install libopus-dev and libvpx-dev because aiortc needs it
-# This is not ideal....
-
-# add any custom commands required for building
+# add any custom commands required for building TODO replace with debian package
 ADD tools/* /usr/bin/
 
 # Install Greenroom fork of bloom
@@ -52,11 +47,12 @@ RUN useradd --create-home --home /home/ros --shell /bin/bash --uid 1000 ros && \
     passwd -d ros && \
     usermod -a -G audio,video,sudo,plugdev,dialout ros
 
-# Build external deps
+# Build external source packages
 WORKDIR /home/ros
 COPY ./external.repos ./external.repos
 RUN mkdir external
 RUN vcs import external < ./external.repos
+RUN apt-get update && rosdep update && rosdep install -y -i --from-paths external
 RUN source /opt/ros/galactic/setup.sh && colcon build --merge-install --install-base /opt/ros/galactic --cmake-args -DBUILD_TESTING=OFF -DFASTDDS_STATISTICS=ON
 
 RUN mkdir /opt/greenroom && chown ros:ros /opt/greenroom
