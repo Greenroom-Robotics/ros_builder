@@ -11,6 +11,8 @@ HEARTBEAT_COUNT_TOPIC;ACKNACK_COUNT_TOPIC;NACKFRAG_COUNT_TOPIC;\
 GAP_COUNT_TOPIC;DATA_COUNT_TOPIC;RESENT_DATAS_TOPIC;SAMPLE_DATAS_TOPIC;\
 PDP_PACKETS_TOPIC;EDP_PACKETS_TOPIC;DISCOVERY_TOPIC;PHYSICAL_DATA_TOPIC"
 
+RUN curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
@@ -21,6 +23,7 @@ RUN apt-get update && apt-get install -y \
     fakeroot \
     git \
     jq \
+    nodejs \
     python3-catkin-pkg \
     python3-colcon-common-extensions \
     python3-flake8 \
@@ -34,6 +37,9 @@ RUN apt-get update && apt-get install -y \
 
 # add any custom commands required for building TODO replace with debian package
 ADD tools/* /usr/bin/
+
+# install yarn and pyright
+RUN sudo npm install --global yarn pyright
 
 # Install Greenroom fork of bloom
 RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/david_revay/sc-4323/version-pinning-in-package-xml.zip
