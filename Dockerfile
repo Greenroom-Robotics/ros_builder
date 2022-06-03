@@ -43,10 +43,9 @@ ADD tools/* /usr/bin/
 # Install Greenroom fork of bloom
 RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/david_revay/sc-4323/version-pinning-in-package-xml.zip
 
-# Install Greenroom's rosdep fork which does not check if packages are installed correctly.
-# this allows us to add paths to python packages stored in github where the path != package_name
+# Install Greenroom's rosdep fork which allows installation from URLs and specific versions
 RUN apt-get remove python3-rosdep -y
-RUN pip install https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/david_revay/sc-4323/version-pinning-in-package-xml.zip
+RUN pip install -U https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/greenroom.zip
 
 RUN useradd --create-home --home /home/ros --shell /bin/bash --uid 1000 ros && \
     passwd -d ros && \
