@@ -1,92 +1,92 @@
 - git:
     local-name: common_interfaces/actionlib_msgs
     uri: https://github.com/ros2-gbp/common_interfaces-release.git
-    version: release/galactic/actionlib_msgs/2.2.4-1
+    version: release/galactic/actionlib_msgs
 - git:
     local-name: common_interfaces/common_interfaces
     uri: https://github.com/ros2-gbp/common_interfaces-release.git
-    version: release/galactic/common_interfaces/2.2.4-1
+    version: release/galactic/common_interfaces
 - git:
     local-name: common_interfaces/diagnostic_msgs
     uri: https://github.com/ros2-gbp/common_interfaces-release.git
-    version: release/galactic/diagnostic_msgs/2.2.4-1
+    version: release/galactic/diagnostic_msgs
 - git:
     local-name: common_interfaces/geometry_msgs
     uri: https://github.com/ros2-gbp/common_interfaces-release.git
-    version: release/galactic/geometry_msgs/2.2.4-1
+    version: release/galactic/geometry_msgs
 - git:
     local-name: common_interfaces/nav_msgs
     uri: https://github.com/ros2-gbp/common_interfaces-release.git
-    version: release/galactic/nav_msgs/2.2.4-1
+    version: release/galactic/nav_msgs
 - git:
     local-name: common_interfaces/sensor_msgs
     uri: https://github.com/ros2-gbp/common_interfaces-release.git
-    version: release/galactic/sensor_msgs/2.2.4-1
+    version: release/galactic/sensor_msgs
 - git:
     local-name: common_interfaces/shape_msgs
     uri: https://github.com/ros2-gbp/common_interfaces-release.git
-    version: release/galactic/shape_msgs/2.2.4-1
+    version: release/galactic/shape_msgs
 - git:
     local-name: common_interfaces/std_msgs
     uri: https://github.com/ros2-gbp/common_interfaces-release.git
-    version: release/galactic/std_msgs/2.2.4-1
+    version: release/galactic/std_msgs
 - git:
     local-name: common_interfaces/std_srvs
     uri: https://github.com/ros2-gbp/common_interfaces-release.git
-    version: release/galactic/std_srvs/2.2.4-1
+    version: release/galactic/std_srvs
 - git:
     local-name: common_interfaces/stereo_msgs
     uri: https://github.com/ros2-gbp/common_interfaces-release.git
-    version: release/galactic/stereo_msgs/2.2.4-1
+    version: release/galactic/stereo_msgs
 - git:
     local-name: common_interfaces/trajectory_msgs
     uri: https://github.com/ros2-gbp/common_interfaces-release.git
-    version: release/galactic/trajectory_msgs/2.2.4-1
+    version: release/galactic/trajectory_msgs
 - git:
     local-name: common_interfaces/visualization_msgs
     uri: https://github.com/ros2-gbp/common_interfaces-release.git
-    version: release/galactic/visualization_msgs/2.2.4-1
+    version: release/galactic/visualization_msgs
 - git:
     local-name: rcl_interfaces/action_msgs
     uri: https://github.com/ros2-gbp/rcl_interfaces-release.git
-    version: release/galactic/action_msgs/1.0.3-2
+    version: release/galactic/action_msgs
 - git:
     local-name: rcl_interfaces/builtin_interfaces
     uri: https://github.com/ros2-gbp/rcl_interfaces-release.git
-    version: release/galactic/builtin_interfaces/1.0.3-2
+    version: release/galactic/builtin_interfaces
 - git:
     local-name: rcl_interfaces/composition_interfaces
     uri: https://github.com/ros2-gbp/rcl_interfaces-release.git
-    version: release/galactic/composition_interfaces/1.0.3-2
+    version: release/galactic/composition_interfaces
 - git:
     local-name: rcl_interfaces/lifecycle_msgs
     uri: https://github.com/ros2-gbp/rcl_interfaces-release.git
-    version: release/galactic/lifecycle_msgs/1.0.3-2
+    version: release/galactic/lifecycle_msgs
 - git:
     local-name: rcl_interfaces/rcl_interfaces
     uri: https://github.com/ros2-gbp/rcl_interfaces-release.git
-    version: release/galactic/rcl_interfaces/1.0.3-2
+    version: release/galactic/rcl_interfaces
 - git:
     local-name: rcl_interfaces/rosgraph_msgs
     uri: https://github.com/ros2-gbp/rcl_interfaces-release.git
-    version: release/galactic/rosgraph_msgs/1.0.3-2
+    version: release/galactic/rosgraph_msgs
 - git:
     local-name: rcl_interfaces/statistics_msgs
     uri: https://github.com/ros2-gbp/rcl_interfaces-release.git
-    version: release/galactic/statistics_msgs/1.0.3-2
+    version: release/galactic/statistics_msgs
 - git:
     local-name: geometry2/tf2_msgs
     uri: https://github.com/ros2-gbp/geometry2-release.git
-    version: release/galactic/tf2_msgs/0.17.3-1
+    version: release/galactic/tf2_msgs
 - git:
     local-name: example_interfaces
     uri: https://github.com/ros2-gbp/example_interfaces-release.git
-    version: release/galactic/example_interfaces/0.9.2-2
+    version: release/galactic/example_interfaces
 - git:
     local-name: geographic_info/geographic_msgs
     uri: https://github.com/ros2-gbp/geographic_info-release.git
-    version: release/galactic/geographic_msgs/1.0.4-5
+    version: release/galactic/geographic_msgs
 - git:
     local-name: unique_identifier_msgs
     uri: https://github.com/ros2-gbp/unique_identifier_msgs-release.git
-    version: release/galactic/unique_identifier_msgs/2.2.1-2
+    version: release/galactic/unique_identifier_msgs

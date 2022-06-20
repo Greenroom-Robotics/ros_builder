@@ -1,7 +1,7 @@
 - git:
     local-name: fastrtps
     uri: https://github.com/ros2-gbp/fastrtps-release.git
-    version: release/galactic/fastrtps/2.3.4-1
+    version: release/galactic/fastrtps
 - git:
     local-name: rosidl
     uri: https://github.com/Greenroom-Robotics/rosidl.git

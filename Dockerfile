@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y \
     python3-catkin-pkg \
     python3-colcon-common-extensions \
     python3-flake8 \
+    python3-invoke \
     python3-pip \
     python3-pytest-cov \
     python3-setuptools \
@@ -33,7 +34,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
 # install yarn and pyright
 RUN apt-get install -y nodejs && npm install --global yarn pyright
 
@@ -41,7 +42,7 @@ RUN apt-get install -y nodejs && npm install --global yarn pyright
 ADD tools/* /usr/bin/
 
 # Install Greenroom fork of bloom
-RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/david_revay/sc-4323/version-pinning-in-package-xml.zip
+RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/gr.zip
 
 # Install Greenroom's rosdep fork which allows installation from URLs and specific versions
 RUN apt-get remove python3-rosdep -y
