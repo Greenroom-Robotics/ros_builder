@@ -62,8 +62,9 @@ RUN vcs import interfaces < ./interfaces.repos
 RUN apt-get update && rosdep update && rosdep install -y -i --from-paths external
 
 # Install external first to ensure interfaces are built correctly
-RUN source /opt/ros/galactic/setup.sh && colcon build --base-paths external --merge-install --install-base /opt/ros/galactic --cmake-args -DBUILD_TESTING=OFF -DFASTDDS_STATISTICS=ON
-RUN source /opt/ros/galactic/setup.sh && colcon build --base-paths interfaces --merge-install --install-base /opt/ros/galactic --cmake-args -DBUILD_TESTING=OFF
+RUN mkdir /opt/ros/galactic-ext
+RUN source /opt/ros/galactic/setup.sh && colcon build --base-paths external --merge-install --install-base /opt/ros/galactic-ext --cmake-args -DBUILD_TESTING=OFF -DFASTDDS_STATISTICS=ON
+RUN source /opt/ros/galactic-ext/setup.sh && colcon build --base-paths interfaces --merge-install --install-base /opt/ros/galactic-ext --cmake-args -DBUILD_TESTING=OFF
 
 WORKDIR /home/ros
 USER ros
