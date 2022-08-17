@@ -1,8 +1,0 @@
-FROM ros_builder
-
-# Install cuda
-USER root
-RUN apt-get update && apt-get install -y nvidia-cuda-toolkit
-RUN nvcc --version
-
-USER ros
