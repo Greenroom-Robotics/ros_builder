@@ -5,7 +5,7 @@ FROM ${BASE_IMAGE}
 LABEL org.opencontainers.image.source=https://github.com/Greenroom-Robotics/ros_builder
 SHELL ["/bin/bash", "-c"]
 
-ENV ROS_DISTRO=galactic
+ENV ROS_DISTRO=humble
 ENV ROS_PYTHON_VERSION=3
 ENV RMW_IMPLEMENTATION rmw_fastrtps_cpp
 ENV FASTDDS_STATISTICS="HISTORY_LATENCY_TOPIC;NETWORK_LATENCY_TOPIC;PUBLICATION_THROUGHPUT_TOPIC;\
@@ -41,10 +41,11 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
 # install bootstrap tools and ros2 packages
-RUN apt-get update && apt-get install --no-install-recommends -y \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
-    gcc-10-base \
-    g++-10 \
+    gcc-12-base \
+    g++-12 \
     cmake \
     debhelper \
     dh-python \
@@ -63,17 +64,16 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     python3-setuptools \
     python3-vcstool \
     ros-${ROS_DISTRO}-rmw-fastrtps-cpp \
-    ros-${ROS_DISTRO}-ros-base=0.9.3-2* \
-    ros-${ROS_DISTRO}-ros-core=0.9.3-2* \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
+    ros-${ROS_DISTRO}-ros-base=0.10.0-1* \
+    ros-${ROS_DISTRO}-ros-core=0.10.0-1* \
+    wget
 
 # set gcc version to latest available on ubuntu rel
-RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 10 && \
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10 && \
-    update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-10 10 && \
-    update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-10 10 && \
-    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-10 10
+RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 && \
+    update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-12 12 && \
+    update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-12 12 && \
+    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-12 12
 
 # bootstrap rosdep
 RUN rosdep init && \
@@ -92,6 +92,9 @@ RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
 
 # install yarn and pyright
 RUN apt-get install -y nodejs && npm install --global yarn pyright
+
+RUN curl -sSL https://install.python-poetry.org | python3 -
+RUN pip install pre-commit
 
 # Install Greenroom fork of bloom
 RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/gr.zip
@@ -121,5 +124,6 @@ RUN source /opt/ros/${ROS_DISTRO}-ext/setup.sh && colcon build --base-paths inte
 
 ENV ROS_OVERLAY /opt/ros/${ROS_DISTRO}-ext
 WORKDIR /home/ros
+ENV PATH="/home/ros/.local/bin:${PATH}"
 
 USER ros
