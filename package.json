@@ -1,6 +1,6 @@
 {
   "name": "ros_builder",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Greenroom's base ROS2 image",
   "main": "index.js",
   "scripts": {
