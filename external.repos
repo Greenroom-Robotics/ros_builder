@@ -1,11 +1,7 @@
 - git:
     local-name: fastrtps
     uri: https://github.com/ros2-gbp/fastrtps-release.git
-    version: release/galactic/fastrtps
-- git:
-    local-name: rosidl
-    uri: https://github.com/Greenroom-Robotics/rosidl.git
-    version: galactic_backport_584_590
+    version: release/humble/fastrtps
 - git:
     local-name: rosidl_generator_mypy
     uri: https://github.com/Greenroom-Robotics/rosidl_generator_mypy
