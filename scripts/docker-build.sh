@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-DOCKER_BUILDKIT=1
+export DOCKER_BUILDKIT=1
 UBUNTU_VERSION="22.04"
 UBUNTU_CODENAME="jammy"
 CUDA_VERSION="cuda:11.7.0-devel-ubuntu22.04"
