@@ -94,6 +94,9 @@ RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
 # install yarn and pyright
 RUN apt-get install -y nodejs && npm install --global yarn pyright
 
+RUN curl -sSL https://install.python-poetry.org | python3 -
+RUN pip install pre-commit
+
 # Install Greenroom fork of bloom
 RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/gr.zip
 
@@ -122,5 +125,6 @@ RUN source /opt/ros/${ROS_DISTRO}-ext/setup.sh && colcon build --base-paths inte
 
 ENV ROS_OVERLAY /opt/ros/${ROS_DISTRO}-ext
 WORKDIR /home/ros
+ENV PATH="/home/ros/.local/bin:${PATH}"
 
 USER ros
