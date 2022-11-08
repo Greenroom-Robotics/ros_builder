@@ -69,11 +69,11 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     && rm -rf /var/lib/apt/lists/*
 
 # set gcc version to latest available on ubuntu rel
-RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 10 && \
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 10 && \
-    update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-12 10 && \
-    update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-12 10 && \
-    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-12 10
+RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 && \
+    update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-12 12 && \
+    update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-12 12 && \
+    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-12 12
 
 # bootstrap rosdep
 RUN rosdep init && \
