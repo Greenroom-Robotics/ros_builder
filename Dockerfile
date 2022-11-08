@@ -41,7 +41,6 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
 # install bootstrap tools and ros2 packages
-
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
