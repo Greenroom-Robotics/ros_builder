@@ -26,13 +26,15 @@ RUN echo 'Etc/UTC' > /etc/timezone && \
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
     dirmngr \
     gnupg2 \
+    curl \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# setup sources.list
-RUN echo "deb http://packages.ros.org/ros2/ubuntu focal main" > /etc/apt/sources.list.d/ros2-latest.list
+# setup ros2 apt source
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" > /etc/apt/sources.list.d/ros2.list
 
 # setup keys
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 
 # setup environment
 ENV LANG C.UTF-8
@@ -41,8 +43,9 @@ ENV LC_ALL C.UTF-8
 # install bootstrap tools and ros2 packages
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
+    gcc-10-base \
+    g++-10 \
     cmake \
-    curl \
     debhelper \
     dh-python \
     dpkg-dev \
@@ -64,6 +67,13 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     ros-${ROS_DISTRO}-ros-core=0.9.3-2* \
     wget \
     && rm -rf /var/lib/apt/lists/*
+
+# set gcc version to latest available on ubuntu rel
+RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 10 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10 && \
+    update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-10 10 && \
+    update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-10 10 && \
+    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-10 10
 
 # bootstrap rosdep
 RUN rosdep init && \
@@ -104,12 +114,12 @@ RUN vcs import interfaces < ./interfaces.repos
 RUN apt-get update && rosdep update && rosdep install -y -i --from-paths external
 
 # Install external first to ensure interfaces are built correctly
-RUN mkdir /opt/ros/galactic-ext && sudo chown -R ros:ros /opt/ros/galactic-ext
+RUN mkdir /opt/ros/${ROS_DISTRO}-ext && sudo chown -R ros:ros /opt/ros/${ROS_DISTRO}-ext
 
-RUN source /opt/ros/galactic/setup.sh && colcon build --base-paths external --merge-install --install-base /opt/ros/galactic-ext --cmake-args -DBUILD_TESTING=OFF -DFASTDDS_STATISTICS=ON
-RUN source /opt/ros/galactic-ext/setup.sh && colcon build --base-paths interfaces --merge-install --install-base /opt/ros/galactic-ext --cmake-args -DBUILD_TESTING=OFF
+RUN source /opt/ros/${ROS_DISTRO}/setup.sh && colcon build --base-paths external --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF -DFASTDDS_STATISTICS=ON
+RUN source /opt/ros/${ROS_DISTRO}-ext/setup.sh && colcon build --base-paths interfaces --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF
 
-ENV ROS_OVERLAY /opt/ros/galactic-ext
+ENV ROS_OVERLAY /opt/ros/${ROS_DISTRO}-ext
 WORKDIR /home/ros
 
 USER ros
