@@ -41,7 +41,9 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
 # install bootstrap tools and ros2 packages
-RUN apt-get update && apt-get install --no-install-recommends -y \
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
     gcc-12-base \
     g++-12 \
@@ -65,8 +67,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     ros-${ROS_DISTRO}-rmw-fastrtps-cpp \
     ros-${ROS_DISTRO}-ros-base=0.10.0-1* \
     ros-${ROS_DISTRO}-ros-core=0.10.0-1* \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
+    wget
 
 # set gcc version to latest available on ubuntu rel
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12 && \
