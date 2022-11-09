@@ -30,11 +30,13 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# setup ros2 apt source
+# setup ros2 apt sources
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" > /etc/apt/sources.list.d/ros2.list
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/vulcanexus-archive-keyring.gpg] http://repo.vulcanexus.org/debian $(source /etc/os-release && echo $UBUNTU_CODENAME) main" > /etc/apt/sources.list.d/vulcanexus.list
 
 # setup keys
 RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+RUN curl -sSL https://raw.githubusercontent.com/eProsima/vulcanexus/main/vulcanexus.key -o /usr/share/keyrings/vulcanexus-archive-keyring.gpg
 
 # setup environment
 ENV LANG C.UTF-8
@@ -66,6 +68,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     ros-${ROS_DISTRO}-rmw-fastrtps-cpp \
     ros-${ROS_DISTRO}-ros-base=0.10.0-1* \
     ros-${ROS_DISTRO}-ros-core=0.10.0-1* \
+    vulcanexus-${ROS_DISTRO}-core=2.0.4 \
     wget
 
 # set gcc version to latest available on ubuntu rel
@@ -118,7 +121,8 @@ RUN apt-get update && rosdep update && rosdep install -y -i --from-paths externa
 # Install external first to ensure interfaces are built correctly
 RUN mkdir /opt/ros/${ROS_DISTRO}-ext && sudo chown -R ros:ros /opt/ros/${ROS_DISTRO}-ext
 
-RUN source /opt/ros/${ROS_DISTRO}/setup.sh && colcon build --base-paths external --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF -DFASTDDS_STATISTICS=ON
+RUN source /opt/ros/${ROS_DISTRO}/setup.sh && source /opt/vulcanexus/${ROS_DISTRO}/setup.sh && colcon build --base-paths external --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF
+# TODO remove interface building and use rosidl generate mypy typing
 RUN source /opt/ros/${ROS_DISTRO}-ext/setup.sh && colcon build --base-paths interfaces --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF
 
 ENV ROS_OVERLAY /opt/ros/${ROS_DISTRO}-ext
