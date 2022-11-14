@@ -71,12 +71,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     vulcanexus-${ROS_DISTRO}-core=2.0.4 \
     wget
 
-# set gcc version to latest available on ubuntu rel
+# unpack mold linker
+RUN curl -L --retry 10 --no-progress-meter https://github.com/rui314/mold/releases/download/v1.7.0/mold-1.7.0-$(uname -m)-linux.tar.gz | tar -C /usr/local --strip-components=1 -xzf -
+
+# set gcc & mold version to latest available on ubuntu rel
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12 && \
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 && \
     update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-12 12 && \
     update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-12 12 && \
-    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-12 12
+    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-12 12 && \
+    update-alternatives --install /usr/bin/ld ld /usr/local/bin/mold 170
 
 # bootstrap rosdep
 RUN rosdep init && \
