@@ -68,7 +68,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     ros-${ROS_DISTRO}-rmw-fastrtps-cpp \
     ros-${ROS_DISTRO}-ros-base=0.10.0-1* \
     ros-${ROS_DISTRO}-ros-core=0.10.0-1* \
-    vulcanexus-${ROS_DISTRO}-core=2.0.4 \
+    vulcanexus-${ROS_DISTRO}-core=2.0.5 \
     wget
 
 # set gcc version to latest available on ubuntu rel
@@ -121,7 +121,7 @@ RUN apt-get update && rosdep update && rosdep install -y -i --from-paths externa
 # Install external first to ensure interfaces are built correctly
 RUN mkdir /opt/ros/${ROS_DISTRO}-ext && sudo chown -R ros:ros /opt/ros/${ROS_DISTRO}-ext
 
-RUN source /opt/ros/${ROS_DISTRO}/setup.sh && source /opt/vulcanexus/${ROS_DISTRO}/setup.sh && colcon build --base-paths external --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF
+RUN source /opt/ros/${ROS_DISTRO}/setup.sh && source /opt/vulcanexus/${ROS_DISTRO}/setup.bash && colcon build --base-paths external --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF
 # TODO remove interface building and use rosidl generate mypy typing
 RUN source /opt/ros/${ROS_DISTRO}-ext/setup.sh && colcon build --base-paths interfaces --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF
 
