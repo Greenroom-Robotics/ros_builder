@@ -1,11 +1,14 @@
 ARG BASE_IMAGE
 
 FROM ${BASE_IMAGE}
-    
+
+ARG TARGETPLATFORM
+ARG ROS_DISTRO
+
 LABEL org.opencontainers.image.source=https://github.com/Greenroom-Robotics/ros_builder
 SHELL ["/bin/bash", "-c"]
 
-ENV ROS_DISTRO=humble
+ENV ROS_DISTRO="${ROS_DISTRO}"
 ENV ROS_PYTHON_VERSION=3
 ENV RMW_IMPLEMENTATION rmw_fastrtps_cpp
 ENV FASTDDS_STATISTICS="HISTORY_LATENCY_TOPIC;NETWORK_LATENCY_TOPIC;PUBLICATION_THROUGHPUT_TOPIC;\
@@ -68,8 +71,13 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     ros-${ROS_DISTRO}-rmw-fastrtps-cpp \
     ros-${ROS_DISTRO}-ros-base=0.10.0-1* \
     ros-${ROS_DISTRO}-ros-core=0.10.0-1* \
-    vulcanexus-${ROS_DISTRO}-core=2.0.5 \
     wget
+
+# Install vulcanexeus packages if TARGETPLATFORM is amd64
+RUN if [ "${TARGETPLATFORM}" = "linux/amd64" ]; then \
+    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    apt-get update && apt-get install --no-install-recommends -y \
+    vulcanexus-${ROS_DISTRO}-core=2.0.5; fi
 
 # set gcc version to latest available on ubuntu rel
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12 && \
@@ -121,7 +129,7 @@ RUN apt-get update && rosdep update && rosdep install -y -i --from-paths externa
 # Install external first to ensure interfaces are built correctly
 RUN mkdir /opt/ros/${ROS_DISTRO}-ext && sudo chown -R ros:ros /opt/ros/${ROS_DISTRO}-ext
 
-RUN source /opt/ros/${ROS_DISTRO}/setup.sh && source /opt/vulcanexus/${ROS_DISTRO}/setup.bash && colcon build --base-paths external --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF
+RUN source /opt/ros/${ROS_DISTRO}/setup.sh && colcon build --base-paths external --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF
 # TODO remove interface building and use rosidl generate mypy typing
 RUN source /opt/ros/${ROS_DISTRO}-ext/setup.sh && colcon build --base-paths interfaces --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF
 
