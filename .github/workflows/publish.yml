@@ -32,9 +32,7 @@ jobs:
         git config --global user.name "Github CI"
     - name: Build and Publish - ${{ github.event.inputs.version }}
       run: |
-        yarn docker:build
-        yarn docker:${{ github.event.inputs.version }}
-        yarn docker:tag
-        yarn docker:push
+        yarn version --${{ github.event.inputs.version }}
+        yarn docker:build-and-push
     - name: Push
       run: git push
