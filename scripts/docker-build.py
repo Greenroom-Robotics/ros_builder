@@ -36,7 +36,7 @@ if __name__ == "__main__":
                         help="ROS distro to build (e.g. galactic, humble, etc.)")
     parser.add_argument('--version', required=True,
                         help="Version of the image (e.g. 1.0.0)")
-    parser.add_argument('--push', default=False,
+    parser.add_argument('--push', default=False, type=bool,
                         help="Should we push the image to the registry?")
     args = parser.parse_args()
 
