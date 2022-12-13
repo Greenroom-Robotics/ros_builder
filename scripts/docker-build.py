@@ -31,6 +31,9 @@ if __name__ == "__main__":
     parser.add_argument('--push', default=False, help="Should we push the image to the registry?")
     args = parser.parse_args()
 
+    # Make sure buildkit is enabled
+    subprocess.run("export DOCKER_BUILDKIT=1", shell=True)
+
     # Run binfmt
     subprocess.run(
         "docker run --privileged --rm tonistiigi/binfmt --install all", shell=True)
