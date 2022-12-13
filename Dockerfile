@@ -75,7 +75,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 # Install vulcanexeus packages if TARGETPLATFORM is amd64
 RUN if [ "${TARGETPLATFORM}" = "linux/amd64" ]; then \
-    --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && apt-get install --no-install-recommends -y \
     vulcanexus-${ROS_DISTRO}-core=2.0.5; fi
 
