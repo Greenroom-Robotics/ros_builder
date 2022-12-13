@@ -2,14 +2,17 @@
 
 import argparse
 import subprocess
-from typing import List
+from typing import List, Dict
+
 
 UBUNTU_VERSION = "22.04"
 UBUNTU_CODENAME = "jammy"
 CUDA_VERSION = "11.7.0-devel-ubuntu22.04"
 
+ENV = Dict[str, str]
 
-def build_image(base_image: str, ros_distro: str, tags: List[str], push: bool = False):
+
+def build_image(base_image: str, ros_distro: str, tags: List[str], push: bool = False, env: ENV = {}):
     print(
         f"\033[92mBuilding image with base image {base_image} and tags {tags}\033[0m")
 
@@ -23,7 +26,7 @@ def build_image(base_image: str, ros_distro: str, tags: List[str], push: bool = 
         ".",
     ]
     command_str = " ".join(command)
-    subprocess.run(command_str, shell=True)
+    subprocess.run(command_str, shell=True, env=env)
 
 
 if __name__ == "__main__":
@@ -38,15 +41,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Make sure buildkit is enabled
-    subprocess.run("export DOCKER_BUILDKIT=1", shell=True)
+    env: ENV = {"DOCKER_BUILDKIT": "1"}
 
     # Run binfmt
     subprocess.run(
-        "docker run --privileged --rm tonistiigi/binfmt --install all", shell=True)
+        "docker run --privileged --rm tonistiigi/binfmt --install all", shell=True, env=env)
 
     # Create buildx environment
     subprocess.run(
-        "docker buildx create --name ros_builder --use || echo 'ros_builder buildx already exists. Continuing...'", shell=True)
+        "docker buildx create --name ros_builder --use || echo 'ros_builder buildx already exists. Continuing...'", shell=True, env=env)
 
     # Build images
     build_image(
@@ -56,7 +59,8 @@ if __name__ == "__main__":
             f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}",
             f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest"
         ],
-        push=args.push
+        push=args.push,
+        env=env,
     )
     build_image(
         base_image=f"ubuntu:{UBUNTU_CODENAME}",
@@ -65,5 +69,6 @@ if __name__ == "__main__":
             f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda",
             f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda"
         ],
-        push=args.push
+        push=args.push,
+        env=env,
     )
