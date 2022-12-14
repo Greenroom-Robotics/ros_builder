@@ -1,10 +1,9 @@
 {
   "name": "ros_builder",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Greenroom's base ROS2 image",
   "main": "index.js",
   "scripts": {
-    "version": "yarn version",
     "docker:build": "./scripts/docker-build.py --version ${npm_package_version} --ros_distro humble",
     "docker:build-and-push": "./scripts/docker-build.py --version ${npm_package_version} --ros_distro humble --push true",
     "docker:login": "docker login ghcr.io"
