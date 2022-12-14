@@ -56,8 +56,8 @@ if __name__ == "__main__":
         base_image=f"nvidia/cuda:{CUDA_VERSION}",
         ros_distro=args.ros_distro,
         tags=[
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}",
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest"
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda",
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda"
         ],
         push=args.push,
         env=env,
@@ -66,8 +66,8 @@ if __name__ == "__main__":
         base_image=f"ubuntu:{UBUNTU_CODENAME}",
         ros_distro=args.ros_distro,
         tags=[
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda",
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda"
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}",
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest"
         ],
         push=args.push,
         env=env,
