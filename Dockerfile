@@ -69,14 +69,14 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     python3-setuptools \
     python3-vcstool \
     ros-${ROS_DISTRO}-rmw-fastrtps-cpp \
-    ros-${ROS_DISTRO}-ros-base=0.10.0-1* \
-    ros-${ROS_DISTRO}-ros-core=0.10.0-1* \
+    ros-${ROS_DISTRO}-ros-base \
+    ros-${ROS_DISTRO}-ros-core \
     wget
 
 # Install vulcanexeus packages if TARGETPLATFORM is amd64
 RUN if [ "${TARGETPLATFORM}" = "linux/amd64" ]; then \
     apt-get update && apt-get install --no-install-recommends -y \
-    vulcanexus-${ROS_DISTRO}-core=2.0.5; fi
+    vulcanexus-${ROS_DISTRO}-core; fi
 
 # set gcc version to latest available on ubuntu rel
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12 && \
