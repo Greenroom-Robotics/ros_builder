@@ -1,5 +1,7 @@
 # ROS Builder
 
+![image](docs/static/ros_builder.png)
+
 This builds a base ROS 2 docker image used for building Greenroom packages.
 
 ## Features 

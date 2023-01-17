@@ -138,5 +138,5 @@ ENV PATH="/home/ros/.local/bin:${PATH}"
 
 USER ros
 
-# Install poetry
+# Install poetry as ros user
 RUN curl -sSL https://install.python-poetry.org | python3 -
