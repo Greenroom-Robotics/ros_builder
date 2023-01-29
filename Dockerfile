@@ -136,6 +136,9 @@ ENV ROS_OVERLAY /opt/ros/${ROS_DISTRO}-ext
 WORKDIR /home/ros
 ENV PATH="/home/ros/.local/bin:${PATH}"
 
+# Enable caching of apt packages: https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#example-cache-apt-packages
+RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+
 USER ros
 
 # Install poetry as ros user
