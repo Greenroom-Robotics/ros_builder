@@ -2,7 +2,6 @@ ARG BASE_IMAGE
 
 FROM ${BASE_IMAGE}
 
-ARG TARGETPLATFORM
 ARG ROS_DISTRO
 
 LABEL org.opencontainers.image.source=https://github.com/Greenroom-Robotics/ros_builder
@@ -71,12 +70,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     ros-${ROS_DISTRO}-rmw-fastrtps-cpp \
     ros-${ROS_DISTRO}-ros-base \
     ros-${ROS_DISTRO}-ros-core \
+    vulcanexus-${ROS_DISTRO}-core \
     wget
-
-# Install vulcanexeus packages if TARGETPLATFORM is amd64
-RUN if [ "${TARGETPLATFORM}" = "linux/amd64" ]; then \
-    apt-get update && apt-get install --no-install-recommends -y \
-    vulcanexus-${ROS_DISTRO}-core; fi
 
 # set gcc version to latest available on ubuntu rel
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12 && \
