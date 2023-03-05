@@ -73,6 +73,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     vulcanexus-${ROS_DISTRO}-core \
     wget
 
+# TODO update when not a pre-release
+RUN curl -L https://github.com/mozilla/sccache/releases/download/v0.4.0-pre.8/sccache-v0.4.0-pre.8-$(uname -m)-unknown-linux-musl.tar.gz | tar zx --wildcards "*/sccache" --strip-components 1 --directory=/usr/bin
+
 # set gcc version to latest available on ubuntu rel
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12 && \
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 && \
