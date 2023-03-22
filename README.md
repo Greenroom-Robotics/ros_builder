@@ -15,8 +15,8 @@ There are 4 different variations of `ros_builder`. See [ghcr](https://github.com
 
 * ` ghcr.io/greenroom-robotics/ros_builder:humble-lastest` **AMD64**
 * ` ghcr.io/greenroom-robotics/ros_builder:humble-lastest-cuda` **AMD64**
-* ` ghcr.io/greenroom-robotics/ros_builder:humble-lastest` **ARM64** - *Note this does not include vulcanexus*
-* ` ghcr.io/greenroom-robotics/ros_builder:humble-lastest-cuda` **ARM64** - *Note this does not include vulcanexus*
+* ` ghcr.io/greenroom-robotics/ros_builder:humble-lastest` **ARM64**
+* ` ghcr.io/greenroom-robotics/ros_builder:humble-lastest-cuda` **ARM64**
 
 ## Releasing
 
