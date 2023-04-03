@@ -5,10 +5,7 @@
   "description": "Greenroom's base ROS2 image",
   "main": "index.js",
   "scripts": {},
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/greenroom-robotics/ros_builder.git#main"
-  },
+  "repository": "git@github.com:Greenroom-Robotics/ros_builder.git",
   "author": "Russ Webber <russ.webber@greenroomrobotics.com>",
   "license": "UNLICENSED",
   "bugs": {
