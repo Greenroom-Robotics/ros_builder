@@ -1,38 +1,79 @@
-name: Publish
+name: Tag & Release
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version Type'
-        required: true
-        default: 'patch'
-        type: choice
-        options:
-        - major
-        - minor
-        - patch
 
 jobs:
-  publish:
-    name: Publish
-    runs-on: ubuntu-latest
+  release:
+    strategy:
+        matrix:
+          job:
+            - runner: buildjet-4vcpu-ubuntu-2204
+              arch: amd64
+            - runner: buildjet-4vcpu-ubuntu-2204-arm
+              arch: arm64
+
+    name: Release - ${{ matrix.job.arch }}
+    runs-on: ${{matrix.job.runner}}}
+
+    outputs:
+      published: ${{ steps.release.outputs.published }}
+      version: ${{ steps.release.outputs.version }}
+
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          version: v0.10.2
+      - name: Docker Login
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.API_TOKEN_GITHUB }}
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+      - name: Install npm dependencies
+        run: yarn install --frozen-lockfile
+      - name: Release
+        id: release
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+          GITHUB_USER: ${{ github.actor }}
+        run: yarn run semantic-release --extends ./release.config.${{ matrix.job.arch }}.js --tag-format='${version}-${{ matrix.job.arch }}'
+
+  create-manifest:
+    name: Create Multi-Arch Manifest
+    runs-on: buildjet-2vcpu-ubuntu-2204
+    needs: release
+
     steps:
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v1
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
-    - name: Git config
+        password: ${{ secrets.API_TOKEN_GITHUB }}
+
+    - name: Create Manifest
+      shell: bash
       run: |
-        git config --global user.email "github@greenroomrobotics.com"
-        git config --global user.name "Github CI"
-    - name: Build and Publish - ${{ github.event.inputs.version }}
-      run: |
-        yarn version --${{ github.event.inputs.version }}
-        yarn docker:build-and-push
-    - name: Push
-      run: git push
+        echo Published ${{ needs.release.outputs.published }}
+        echo Version ${{ needs.release.outputs.version }}
+
+        create_manifest_multi() {
+          docker manifest create ghcr.io/greenroom-robotics/${1}:latest \
+            ghcr.io/greenroom-robotics/${1}:latest-amd64 \
+            ghcr.io/greenroom-robotics/${1}:latest-arm64
+          docker manifest push ghcr.io/greenroom-robotics/${1}:latest
+        }
+        create_manifest_amd64() {
+          docker manifest create ghcr.io/greenroom-robotics/${1}:latest \
+            ghcr.io/greenroom-robotics/${1}:latest-amd64
+          docker manifest push ghcr.io/greenroom-robotics/${1}:latest
+        }
+
+        # Create manifests for multi-arch images
+        create_manifest_multi "ros_builder"

@@ -3,11 +3,7 @@
   "version": "1.2.2",
   "description": "Greenroom's base ROS2 image",
   "main": "index.js",
-  "scripts": {
-    "docker:build": "./scripts/docker-build.py --version ${npm_package_version} --ros_distro humble",
-    "docker:build-and-push": "./scripts/docker-build.py --version ${npm_package_version} --ros_distro humble --push true",
-    "docker:login": "docker login ghcr.io"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/greenroom-robotics/ros_builder.git#main"
@@ -17,5 +13,15 @@
   "bugs": {
     "url": "https://github.com/greenroom-robotics/ros_builder/issues"
   },
-  "homepage": "https://github.com/greenroom-robotics/ros_builder/tree/main#readme"
+  "homepage": "https://github.com/greenroom-robotics/ros_builder/tree/main#readme",
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/commit-analyzer": "^9.0.2",
+    "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^8.0.7",
+    "@semantic-release/release-notes-generator": "^10.0.3",
+    "conventional-changelog-conventionalcommits": "^5.0.0",
+    "semantic-release": "https://github.com/Greenroom-Robotics/semantic-release.git#v19.0.5-patched"
+  }
 }
