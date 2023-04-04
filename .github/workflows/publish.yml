@@ -59,21 +59,28 @@ jobs:
 
     - name: Create Manifest
       shell: bash
+      if: needs.release.outputs.published == 'true'
       run: |
         echo Published ${{ needs.release.outputs.published }}
         echo Version ${{ needs.release.outputs.version }}
 
-        create_manifest_multi() {
-          docker manifest create ghcr.io/greenroom-robotics/${1}:latest \
-            ghcr.io/greenroom-robotics/${1}:latest-amd64 \
-            ghcr.io/greenroom-robotics/${1}:latest-arm64
-          docker manifest push ghcr.io/greenroom-robotics/${1}:latest
-        }
-        create_manifest_amd64() {
-          docker manifest create ghcr.io/greenroom-robotics/${1}:latest \
-            ghcr.io/greenroom-robotics/${1}:latest-amd64
-          docker manifest push ghcr.io/greenroom-robotics/${1}:latest
-        }
+        docker manifest create ghcr.io/greenroom-robotics/ros_builder:humble-latest \
+          ghcr.io/greenroom-robotics/ros_builder:humble-latest-amd64 \
+          ghcr.io/greenroom-robotics/ros_builder:humble-latest-arm64
+        
+        docker manifest create ghcr.io/greenroom-robotics/ros_builder:humble-latest-cuda \
+          ghcr.io/greenroom-robotics/ros_builder:humble-latest-amd64 \
+          ghcr.io/greenroom-robotics/ros_builder:humble-latest-arm64
+        
+        docker manifest create ghcr.io/greenroom-robotics/ros_builder:humble-${{ needs.release.outputs.version }} \
+          ghcr.io/greenroom-robotics/ros_builder:humble-${{ needs.release.outputs.version }}-amd64 \
+          ghcr.io/greenroom-robotics/ros_builder:humble-${{ needs.release.outputs.version }}-arm64
 
-        # Create manifests for multi-arch images
-        create_manifest_multi "ros_builder"
+        docker manifest create ghcr.io/greenroom-robotics/ros_builder:humble-${{ needs.release.outputs.version }}-cuda \
+          ghcr.io/greenroom-robotics/ros_builder:humble-${{ needs.release.outputs.version }}-cuda-amd64 \
+          ghcr.io/greenroom-robotics/ros_builder:humble-${{ needs.release.outputs.version }}-cuda-arm64
+
+        docker manifest push ghcr.io/greenroom-robotics/ros_builder:humble-latest
+        docker manifest push ghcr.io/greenroom-robotics/ros_builder:humble-latest-cuda
+        docker manifest push ghcr.io/greenroom-robotics/ros_builder:humble-${{ needs.release.outputs.version }}
+        docker manifest push ghcr.io/greenroom-robotics/ros_builder:humble-${{ needs.release.outputs.version }}-cuda

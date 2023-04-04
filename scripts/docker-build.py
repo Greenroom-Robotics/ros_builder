@@ -50,8 +50,8 @@ if __name__ == "__main__":
         ros_distro=args.ros_distro,
         arch=args.arch,
         tags=[
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda",
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda"
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-{args.arch}",
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-{args.arch}"
         ],
         push=args.push,
     )
@@ -60,8 +60,8 @@ if __name__ == "__main__":
         ros_distro=args.ros_distro,
         arch=args.arch,
         tags=[
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}",
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest"
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-{args.arch}",
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-{args.arch}"
         ],
         push=args.push,
     )
