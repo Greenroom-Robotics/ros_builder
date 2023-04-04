@@ -27,7 +27,9 @@ def build_image(base_image: str, ros_distro: str, arch: str, tags: List[str], pu
         ".",
     ]
     command_str = " ".join(command)
-    subprocess.run(command_str, shell=True, env=env)
+    result = subprocess.run(command_str, shell=True, env=env)
+    if result.returncode != 0:
+        raise Exception(f"Failed to build image with command {command_str}")
 
 
 if __name__ == "__main__":
