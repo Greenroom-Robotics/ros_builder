@@ -73,7 +73,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     vulcanexus-${ROS_DISTRO}-core \
     wget
 
-RUN curl -L https://github.com/mozilla/sccache/releases/download/v0.4.1/sccache-v0.4.1-$(uname -m)-unknown-linux-musl.tar.gz | tar zx --wildcards "*/sccache" --strip-components 1 --directory=/usr/bin
+RUN curl -L https://github.com/mozilla/sccache/releases/download/v0.4.2/sccache-v0.4.2-$(uname -m)-unknown-linux-musl.tar.gz | tar zx --wildcards "*/sccache" --strip-components 1 --directory=/usr/bin
 
 # set gcc version to latest available on ubuntu rel
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12 && \
