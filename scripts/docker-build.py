@@ -7,7 +7,7 @@ from typing import List, Dict
 
 UBUNTU_VERSION = "22.04"
 UBUNTU_CODENAME = "jammy"
-CUDA_VERSION = "11.7.0-devel-ubuntu22.04"
+CUDA_VERSION = "11.7.1-devel-ubuntu22.04"
 
 ENV = Dict[str, str]
 
