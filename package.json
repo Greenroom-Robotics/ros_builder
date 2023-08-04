@@ -7,7 +7,7 @@
   "scripts": {},
   "repository": "git@github.com:Greenroom-Robotics/ros_builder.git",
   "author": "Russ Webber <russ.webber@greenroomrobotics.com>",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/greenroom-robotics/ros_builder/issues"
   },
