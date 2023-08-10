@@ -18,6 +18,10 @@ RUN echo 'Etc/UTC' > /etc/timezone && \
     apt-get install -q -y --no-install-recommends tzdata && \
     rm -rf /var/lib/apt/lists/*
 
+# setup debconf for non-interactive install
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
+  echo 'wireshark-common wireshark-common/install-setuid boolean true' | debconf-set-selections
+
 # install packages
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
     dirmngr \
