@@ -117,19 +117,18 @@ RUN useradd --create-home --home /home/ros --shell /bin/bash --uid 1000 ros && \
 
 # Build external source packages
 WORKDIR /home/ros
+
+# TODO move external repos to packages
 COPY ./external.repos ./external.repos
-COPY ./interfaces.repos ./interfaces.repos
-RUN mkdir external && mkdir interfaces
+RUN mkdir external
 RUN vcs import external < ./external.repos
-RUN vcs import interfaces < ./interfaces.repos
 RUN apt-get update && rosdep update && rosdep install -y -i --from-paths external
 
-# Install external first to ensure interfaces are built correctly
 RUN mkdir /opt/ros/${ROS_DISTRO}-ext && sudo chown -R ros:ros /opt/ros/${ROS_DISTRO}-ext
 
 RUN source /opt/ros/${ROS_DISTRO}/setup.sh && colcon build --base-paths external --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF
-# TODO remove interface building and use rosidl generate mypy typing
-RUN source /opt/ros/${ROS_DISTRO}-ext/setup.sh && colcon build --base-paths interfaces --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF
+
+RUN source /opt/ros/${ROS_DISTRO}-ext/setup.sh && python scripts/rosidl_generate_inplace.py
 
 ENV ROS_OVERLAY /opt/ros/${ROS_DISTRO}-ext
 WORKDIR /home/ros
