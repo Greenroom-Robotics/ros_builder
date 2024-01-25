@@ -4,6 +4,8 @@ from pathlib import Path
 import os
 
 interfaces_pkgs = ament_index_python.get_resources('rosidl_interfaces')
+# needs to be run from / for the file paths to be correct
+os.chdir("/")
 
 for pkg_name, pkg_prefix in interfaces_pkgs.items():
     resource_files, rsc_path = ament_index_python.get_resource('rosidl_interfaces', pkg_name)
@@ -13,9 +15,6 @@ for pkg_name, pkg_prefix in interfaces_pkgs.items():
 
     idls = [str(share_path / resource_file) for resource_file in resource_files if resource_file.endswith('.idl')]
     print(f'Generating {pkg_name} interfaces from {idls}...')
-
-    # needs to be run from / for the file paths to be correct
-    os.chdir("/")
 
     generate(
         package_name=pkg_name,

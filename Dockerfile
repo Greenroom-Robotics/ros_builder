@@ -130,7 +130,8 @@ RUN mkdir /opt/ros/${ROS_DISTRO}-ext && sudo chown -R ros:ros /opt/ros/${ROS_DIS
 
 RUN source /opt/ros/${ROS_DISTRO}/setup.sh && colcon build --base-paths external --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF
 
-RUN source /opt/ros/${ROS_DISTRO}-ext/setup.sh && python scripts/rosidl_generate_inplace.py
+RUN --mount=type=bind,source=scripts,target=scripts \
+  source /opt/ros/${ROS_DISTRO}-ext/setup.sh && python3 scripts/rosidl_generate_inplace.py
 
 ENV ROS_OVERLAY /opt/ros/${ROS_DISTRO}-ext
 WORKDIR /home/ros
