@@ -71,6 +71,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     ros-${ROS_DISTRO}-rmw-fastrtps-cpp \
     ros-${ROS_DISTRO}-ros-base \
     ros-${ROS_DISTRO}-ros-core \
+    ros-${ROS_DISTRO}-geographic-msgs \
+    ros-${ROS_DISTRO}-example-interfaces \
     vulcanexus-${ROS_DISTRO}-core \
     wget
 
