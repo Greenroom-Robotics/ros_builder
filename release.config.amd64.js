@@ -1,6 +1,6 @@
 
 module.exports = {
-  branches: ['main', 'add-integration-service-to-gama'],
+  branches: ['main'],
   plugins:
     [
       [
