@@ -24,6 +24,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 
 # install packages
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
+    less \
     dirmngr \
     gnupg2 \
     curl \
