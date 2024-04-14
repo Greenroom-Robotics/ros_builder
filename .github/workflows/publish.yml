@@ -14,7 +14,7 @@ jobs:
               arch: arm64
 
     name: Release - ${{ matrix.job.arch }}
-    runs-on: ${{matrix.job.runner}}}
+    runs-on: ${{ matrix.job.runner }}
 
     outputs:
       published: ${{ steps.release.outputs.published }}
