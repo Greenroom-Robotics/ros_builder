@@ -5,8 +5,8 @@ import subprocess
 from typing import List, Dict
 
 
-UBUNTU_VERSION = "22.04"
-UBUNTU_CODENAME = "jammy"
+UBUNTU_VERSION = "24.04"
+UBUNTU_CODENAME = "noble"
 CUDA_VERSION = "11.7.1-devel-ubuntu22.04"
 
 ENV = Dict[str, str]
@@ -47,16 +47,16 @@ if __name__ == "__main__":
 
 
     # Build images
-    build_image(
-        base_image=f"nvidia/cuda:{CUDA_VERSION}",
-        ros_distro=args.ros_distro,
-        arch=args.arch,
-        tags=[
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-{args.arch}",
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-{args.arch}"
-        ],
-        push=args.push,
-    )
+    # build_image(
+    #     base_image=f"nvidia/cuda:{CUDA_VERSION}",
+    #     ros_distro=args.ros_distro,
+    #     arch=args.arch,
+    #     tags=[
+    #         f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-{args.arch}",
+    #         f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-{args.arch}"
+    #     ],
+    #     push=args.push,
+    # )
     build_image(
         base_image=f"ubuntu:{UBUNTU_CODENAME}",
         ros_distro=args.ros_distro,
