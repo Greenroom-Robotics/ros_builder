@@ -23,7 +23,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
   echo 'wireshark-common wireshark-common/install-setuid boolean true' | debconf-set-selections
 
 # install packages
-RUN apt-get update && apt-get install -q -y --no-install-recommends \
+RUN apt-get update && apt-get dist-upgrade -q -y && apt-get install -q -y --no-install-recommends \
     less \
     dirmngr \
     gnupg2 \
@@ -118,6 +118,7 @@ RUN pip install --break-system-packages -U https://github.com/Greenroom-Robotics
 
 RUN usermod --move-home --home /home/ros --login ros ubuntu && \
     usermod -a -G audio,video,sudo,plugdev,dialout ros && \
+    passwd -d ros && \
     groupmod --new-name ros ubuntu
 
 # Build external source packages
