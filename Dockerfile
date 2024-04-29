@@ -52,7 +52,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     gcc-14-base \
     g++-14 \
     gdb \
+    rr \
     cmake \
+    sccache \
     debhelper \
     dh-python \
     dpkg-dev \
@@ -79,15 +81,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
     # vulcanexus-${ROS_DISTRO}-core \
 
-RUN curl -L https://github.com/mozilla/sccache/releases/download/v0.7.7/sccache-v0.7.7-$(uname -m)-unknown-linux-musl.tar.gz | tar zx --wildcards "*/sccache" --strip-components 1 --directory=/usr/bin
-RUN curl -L https://github.com/rr-debugger/rr/releases/download/5.7.0/rr-5.7.0-Linux-$(uname -m).deb --output rr.deb && dpkg --install rr.deb && rm rr.deb
+# RUN curl -L https://github.com/mozilla/sccache/releases/download/v0.7.7/sccache-v0.7.7-$(uname -m)-unknown-linux-musl.tar.gz | tar zx --wildcards "*/sccache" --strip-components 1 --directory=/usr/bin
+# RUN curl -L https://github.com/rr-debugger/rr/releases/download/5.7.0/rr-5.7.0-Linux-$(uname -m).deb --output rr.deb && dpkg --install rr.deb && rm rr.deb
 
 # set gcc version to latest available on ubuntu rel
-# RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12 && \
-#     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 && \
-#     update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-12 12 && \
-#     update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-12 12 && \
-#     update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-12 12
+RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14 && \
+    update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-14 14 && \
+    update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-14 14 && \
+    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-14 14
 
 # bootstrap rosdep
 RUN rosdep init && \
@@ -102,7 +104,7 @@ RUN colcon mixin add default \
     colcon metadata update
 
 # install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
 
 # install yarn and pyright
 RUN apt-get install -y nodejs && npm install --global yarn pyright
