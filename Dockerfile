@@ -23,7 +23,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
   echo 'wireshark-common wireshark-common/install-setuid boolean true' | debconf-set-selections
 
 # install packages
-RUN apt-get update && apt-get install -q -y --no-install-recommends \
+RUN apt-get update && apt-get dist-upgrade -q -y && apt-get install -q -y --no-install-recommends \
     less \
     dirmngr \
     gnupg2 \
@@ -32,14 +32,14 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # setup ros2 apt sources
-RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" > /etc/apt/sources.list.d/ros2.list
-RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/vulcanexus-archive-keyring.gpg] http://repo.vulcanexus.org/debian $(source /etc/os-release && echo $UBUNTU_CODENAME) main" > /etc/apt/sources.list.d/vulcanexus.list
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2-testing/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" > /etc/apt/sources.list.d/ros2.list
+# RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/vulcanexus-archive-keyring.gpg] http://repo.vulcanexus.org/debian $(source /etc/os-release && echo $UBUNTU_CODENAME) main" > /etc/apt/sources.list.d/vulcanexus.list
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/gazebo-stable-keyring.gpg]  http://packages.osrfoundation.org/gazebo/ubuntu-stable $(source /etc/os-release && echo $UBUNTU_CODENAME) main" > /etc/apt/sources.list.d/gazebo-stable.list
 
 # setup keys
 RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg \
-  && curl -sSL https://raw.githubusercontent.com/eProsima/vulcanexus/main/vulcanexus.key -o /usr/share/keyrings/vulcanexus-archive-keyring.gpg \
   && curl -sSL https://packages.osrfoundation.org/gazebo.key | gpg --dearmor -o /usr/share/keyrings/gazebo-stable-keyring.gpg
+# && curl -sSL https://raw.githubusercontent.com/eProsima/vulcanexus/main/vulcanexus.key -o /usr/share/keyrings/vulcanexus-archive-keyring.gpg \
 
 # setup environment
 ENV LANG C.UTF-8
@@ -49,10 +49,12 @@ ENV LC_ALL C.UTF-8
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
-    gcc-12-base \
-    g++-12 \
+    gcc-14-base \
+    g++-14 \
     gdb \
+    rr \
     cmake \
+    sccache \
     debhelper \
     dh-python \
     dpkg-dev \
@@ -75,18 +77,19 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     ros-${ROS_DISTRO}-ros-core \
     ros-${ROS_DISTRO}-geographic-msgs \
     ros-${ROS_DISTRO}-example-interfaces \
-    vulcanexus-${ROS_DISTRO}-core \
     wget
 
-RUN curl -L https://github.com/mozilla/sccache/releases/download/v0.7.7/sccache-v0.7.7-$(uname -m)-unknown-linux-musl.tar.gz | tar zx --wildcards "*/sccache" --strip-components 1 --directory=/usr/bin
-RUN curl -L https://github.com/rr-debugger/rr/releases/download/5.7.0/rr-5.7.0-Linux-$(uname -m).deb --output rr.deb && dpkg --install rr.deb && rm rr.deb
+    # vulcanexus-${ROS_DISTRO}-core \
+
+# RUN curl -L https://github.com/mozilla/sccache/releases/download/v0.7.7/sccache-v0.7.7-$(uname -m)-unknown-linux-musl.tar.gz | tar zx --wildcards "*/sccache" --strip-components 1 --directory=/usr/bin
+# RUN curl -L https://github.com/rr-debugger/rr/releases/download/5.7.0/rr-5.7.0-Linux-$(uname -m).deb --output rr.deb && dpkg --install rr.deb && rm rr.deb
 
 # set gcc version to latest available on ubuntu rel
-RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12 && \
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 && \
-    update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-12 12 && \
-    update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-12 12 && \
-    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-12 12
+RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14 && \
+    update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-14 14 && \
+    update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-14 14 && \
+    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-14 14
 
 # bootstrap rosdep
 RUN rosdep init && \
@@ -106,18 +109,19 @@ RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
 # install yarn and pyright
 RUN apt-get install -y nodejs && npm install --global yarn pyright
 
-RUN pip install pre-commit
+RUN pip install --break-system-packages pre-commit
 
 # Install Greenroom fork of bloom
-RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/gr.zip
+RUN pip install --break-system-packages https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/gr.zip
 
 # Install Greenroom's rosdep fork which allows installation from URLs and specific versions with downgrades
 RUN apt-get remove python3-rosdep -y
-RUN pip install -U https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/greenroom.zip
+RUN pip install --break-system-packages -U https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/greenroom.zip
 
-RUN useradd --create-home --home /home/ros --shell /bin/bash --uid 1000 ros && \
+RUN usermod --move-home --home /home/ros --login ros ubuntu && \
+    usermod -a -G audio,video,sudo,plugdev,dialout ros && \
     passwd -d ros && \
-    usermod -a -G audio,video,sudo,plugdev,dialout ros
+    groupmod --new-name ros ubuntu
 
 # Build external source packages
 WORKDIR /home/ros
@@ -145,4 +149,5 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloa
 USER ros
 
 # Install poetry as ros user
-RUN curl -sSL https://install.python-poetry.org | python3 -
+# RUN curl -sSL https://install.python-poetry.org | python3 -
+RUN pip install --break-system-packages poetry
