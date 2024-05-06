@@ -1,6 +1,7 @@
 
 module.exports = {
-  branches: ['main'],
+  branches: ['iron'],
+  tagFormat: 'iron-${version}',
   plugins:
     [
       [

@@ -5,10 +5,6 @@ import subprocess
 from typing import List, Dict
 
 
-UBUNTU_VERSION = "22.04"
-UBUNTU_CODENAME = "jammy"
-CUDA_VERSION = "11.7.1-devel-ubuntu22.04"
-
 ENV = Dict[str, str]
 
 
@@ -45,6 +41,15 @@ if __name__ == "__main__":
                         help="Should we push the image to the registry?")
     args = parser.parse_args()
 
+
+    if args.ros_distro == "jazzy":
+        UBUNTU_VERSION = "24.04"
+        UBUNTU_CODENAME = "noble"
+        CUDA_VERSION = f"12.5.1-devel-ubuntu{UBUNTU_VERSION}"
+    elif args.ros_distro == "iron":
+        UBUNTU_VERSION = "22.04"
+        UBUNTU_CODENAME = "jammy"
+        CUDA_VERSION = f"11.7.1-devel-ubuntu{UBUNTU_VERSION}"
 
     # Build images
     build_image(

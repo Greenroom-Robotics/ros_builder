@@ -31,7 +31,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.API_TOKEN_GITHUB }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          ref: iron
       - name: Setup Node.js
         uses: actions/setup-node@v2
       - name: Install npm dependencies
@@ -42,7 +44,7 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
           GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
           GITHUB_USER: ${{ github.actor }}
-        run: yarn run semantic-release --extends ./release.config.${{ matrix.job.arch }}.js --tag-format='${version}-${{ matrix.job.arch }}'
+        run: yarn run semantic-release --extends ./release.config.${{ matrix.job.arch }}.js --tag-format='iron-${version}-${{ matrix.job.arch }}'
 
   create-manifest:
     name: Create Multi-Arch Manifest

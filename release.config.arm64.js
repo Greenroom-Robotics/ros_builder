@@ -1,6 +1,7 @@
 
 module.exports = {
-  branches: ['main', 'add-integration-service-to-gama'],
+  branches: ['iron'],
+  tagFormat: 'iron-${version}',
   plugins:
     [
       [

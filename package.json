@@ -1,8 +1,8 @@
 {
   "name": "ros_builder",
   "private": true,
-  "version": "1.5.0",
-  "description": "Greenroom's base ROS2 image",
+  "version": "1.5.6",
+  "description": "Greenroom's base ROS 2 Iron image",
   "main": "index.js",
   "scripts": {},
   "repository": "git@github.com:Greenroom-Robotics/ros_builder.git",
