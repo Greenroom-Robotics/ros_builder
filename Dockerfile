@@ -11,9 +11,6 @@ ENV ROS_DISTRO="${ROS_DISTRO}"
 ENV ROS_PYTHON_VERSION=3
 ENV RMW_IMPLEMENTATION rmw_fastrtps_cpp
 
-# Remove EXTERNALLY-MANAGED so we don't need to add --break-system-packages to pip
-RUN sudo rm /usr/lib/python3.*/EXTERNALLY-MANAGED
-
 # setup timezone
 RUN echo 'Etc/UTC' > /etc/timezone && \
     ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
@@ -93,6 +90,9 @@ RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14 && \
     update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-14 14 && \
     update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-14 14 && \
     update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-14 14
+
+# Remove EXTERNALLY-MANAGED so we don't need to add --break-system-packages to pip
+RUN sudo rm /usr/lib/python3.*/EXTERNALLY-MANAGED
 
 # bootstrap rosdep
 RUN rosdep init && \
