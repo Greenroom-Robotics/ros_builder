@@ -11,6 +11,9 @@ ENV ROS_DISTRO="${ROS_DISTRO}"
 ENV ROS_PYTHON_VERSION=3
 ENV RMW_IMPLEMENTATION rmw_fastrtps_cpp
 
+# Remove EXTERNALLY-MANAGED so we don't need to add --break-system-packages to pip
+RUN sudo rm /usr/lib/python3.*/EXTERNALLY-MANAGED
+
 # setup timezone
 RUN echo 'Etc/UTC' > /etc/timezone && \
     ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
@@ -109,14 +112,14 @@ RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
 # install yarn and pyright
 RUN apt-get install -y nodejs && npm install --global yarn pyright
 
-RUN pip install --break-system-packages pre-commit
+RUN pip install pre-commit
 
 # Install Greenroom fork of bloom
-RUN pip install --break-system-packages https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/gr.zip
+RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/gr.zip
 
 # Install Greenroom's rosdep fork which allows installation from URLs and specific versions with downgrades
 RUN apt-get remove python3-rosdep -y
-RUN pip install --break-system-packages -U https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/greenroom.zip
+RUN pip install -U https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/greenroom.zip
 
 RUN usermod --move-home --home /home/ros --login ros ubuntu && \
     usermod -a -G audio,video,sudo,plugdev,dialout ros && \
@@ -150,4 +153,4 @@ USER ros
 
 # Install poetry as ros user
 # RUN curl -sSL https://install.python-poetry.org | python3 -
-RUN pip install --break-system-packages poetry
+RUN pip install poetry
