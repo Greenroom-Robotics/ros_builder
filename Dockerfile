@@ -61,6 +61,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     fakeroot \
     git \
     jq \
+    iputils-ping \
     python3-catkin-pkg \
     python3-colcon-common-extensions \
     python3-colcon-mixin \
