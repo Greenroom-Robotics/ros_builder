@@ -151,5 +151,4 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloa
 USER ros
 
 # Install poetry as ros user
-# RUN curl -sSL https://install.python-poetry.org | python3 -
-RUN pip install poetry
+RUN pip install poetry poetry-plugin-export
