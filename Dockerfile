@@ -9,7 +9,7 @@ SHELL ["/bin/bash", "-c"]
 
 ENV ROS_DISTRO="${ROS_DISTRO}"
 ENV ROS_PYTHON_VERSION=3
-ENV RMW_IMPLEMENTATION rmw_fastrtps_cpp
+ENV RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 
 # setup timezone
 RUN echo 'Etc/UTC' > /etc/timezone && \
@@ -42,8 +42,8 @@ RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o 
 # && curl -sSL https://raw.githubusercontent.com/eProsima/vulcanexus/main/vulcanexus.key -o /usr/share/keyrings/vulcanexus-archive-keyring.gpg \
 
 # setup environment
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
 
 # install bootstrap tools and ros2 packages
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -91,7 +91,7 @@ RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14 && \
     update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-14 14
 
 # Remove EXTERNALLY-MANAGED so we don't need to add --break-system-packages to pip
-RUN sudo rm /usr/lib/python3.*/EXTERNALLY-MANAGED
+RUN sudo rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED
 
 # bootstrap rosdep
 RUN rosdep init && \
@@ -141,7 +141,7 @@ RUN source /opt/ros/${ROS_DISTRO}/setup.sh && colcon build --base-paths external
 RUN --mount=type=bind,source=scripts,target=scripts \
   source /opt/ros/${ROS_DISTRO}-ext/setup.sh && python3 scripts/rosidl_generate_inplace.py
 
-ENV ROS_OVERLAY /opt/ros/${ROS_DISTRO}-ext
+ENV ROS_OVERLAY=/opt/ros/${ROS_DISTRO}-ext
 WORKDIR /home/ros
 ENV PATH="/home/ros/.local/bin:${PATH}"
 
