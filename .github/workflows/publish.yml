@@ -8,9 +8,9 @@ jobs:
     strategy:
         matrix:
           job:
-            - runner: buildjet-4vcpu-ubuntu-2204
+            - runner: buildjet-8vcpu-ubuntu-2204
               arch: amd64
-            - runner: buildjet-4vcpu-ubuntu-2204-arm
+            - runner: buildjet-8vcpu-ubuntu-2204-arm
               arch: arm64
 
     name: Release - ${{ matrix.job.arch }}
