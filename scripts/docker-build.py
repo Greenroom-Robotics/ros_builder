@@ -45,11 +45,11 @@ if __name__ == "__main__":
     if args.ros_distro == "jazzy":
         UBUNTU_VERSION = "24.04"
         UBUNTU_CODENAME = "noble"
-        CUDA_VERSION = f"12.5.1-devel-ubuntu{UBUNTU_VERSION}"
+        CUDA_VERSION = f"12.6.3-cudnn-devel-ubuntu{UBUNTU_VERSION}"
     elif args.ros_distro == "iron":
         UBUNTU_VERSION = "22.04"
         UBUNTU_CODENAME = "jammy"
-        CUDA_VERSION = f"11.7.1-devel-ubuntu{UBUNTU_VERSION}"
+        CUDA_VERSION = f"12.6.3-cudnn-devel-ubuntu{UBUNTU_VERSION}"
 
     # Build images
     build_image(
