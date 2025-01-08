@@ -94,7 +94,7 @@ RUN sudo rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED
 
 # bootstrap rosdep
 RUN rosdep init && \
-  rosdep update --rosdistro $ROS_DISTRO
+  rosdep update --rosdistro $ROS_DISTRO --include-eol-distros
 
 # setup colcon mixin and metadata
 RUN colcon mixin add default \
@@ -130,7 +130,7 @@ WORKDIR /home/ros
 COPY ./external.repos ./external.repos
 RUN mkdir external
 RUN vcs import external < ./external.repos
-RUN apt-get update && rosdep update && rosdep install -y -i --from-paths external
+RUN apt-get update && rosdep update --rosdistro $ROS_DISTRO --include-eol-distros && rosdep install -y --rosdistro $ROS_DISTRO --include-eol-distros -i --from-paths external
 
 RUN mkdir /opt/ros/${ROS_DISTRO}-ext && sudo chown -R ros:ros /opt/ros/${ROS_DISTRO}-ext
 
