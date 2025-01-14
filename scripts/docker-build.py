@@ -49,7 +49,7 @@ if __name__ == "__main__":
     elif args.ros_distro == "iron":
         UBUNTU_VERSION = "22.04"
         UBUNTU_CODENAME = "jammy"
-        CUDA_VERSION = f"12.3.2-cudnn9-devel--ubuntu{UBUNTU_VERSION}"
+        CUDA_VERSION = f"12.3.2-cudnn9-devel-ubuntu{UBUNTU_VERSION}"
 
     # Build images
     build_image(
