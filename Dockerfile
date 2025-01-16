@@ -115,7 +115,7 @@ RUN pip install pre-commit
 # Install Greenroom fork of bloom
 RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/gr.zip
 
-# Install Greenroom's rosdep fork which allows installation from URLs and specific versions with downgrades
+# Install Greenroom's rosdep fork which allows installation from URLs, version pinning and downgrades
 RUN apt-get remove python3-rosdep -y
 RUN pip install -U https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/greenroom.zip
 
