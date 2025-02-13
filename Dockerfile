@@ -77,7 +77,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     ros-${ROS_DISTRO}-ros-core \
     ros-${ROS_DISTRO}-geographic-msgs \
     ros-${ROS_DISTRO}-example-interfaces \
-    wget
+    wget \
+    bpfcc-tools \
+    bpftrace
 
     # vulcanexus-${ROS_DISTRO}-core \
 
