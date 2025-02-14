@@ -108,7 +108,7 @@ RUN colcon mixin add default \
     colcon metadata update
 
 # install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_22.x | bash -
 
 # install yarn and pyright
 RUN apt-get install -y nodejs && npm install --global yarn pyright
