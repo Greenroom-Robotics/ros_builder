@@ -25,6 +25,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 # install packages
 RUN apt-get update && apt-get dist-upgrade -q -y && apt-get install -q -y --no-install-recommends \
     less \
+    iproute2 \
     dirmngr \
     gnupg2 \
     curl \
