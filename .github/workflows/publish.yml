@@ -44,7 +44,7 @@ jobs:
 
   create-manifest:
     name: Create Multi-Arch Manifest
-    runs-on: buildjet-2vcpu-ubuntu-2204
+    runs-on: 2vcpu-ubuntu-2404
     needs: release
 
     steps:
