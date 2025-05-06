@@ -13,7 +13,7 @@ ENV RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 
 # setup timezone
 RUN echo 'Etc/UTC' > /etc/timezone && \
-    ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
+    ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
     apt-get update && \
     apt-get install -q -y --no-install-recommends tzdata && \
     rm -rf /var/lib/apt/lists/*
