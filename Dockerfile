@@ -163,7 +163,7 @@ USER ros
 
 # Make sure we own the venv directory if it exists
 # This is where packages are installed on l4t / jetson
-RUN if [ -d /opt/venv ]; then chown -R ros:ros /opt/venv; fi
+RUN if [ -d /opt/venv ]; then sudo chown -R ros:ros /opt/venv; fi
 
 # Install poetry as ros user
 RUN pip install poetry poetry-plugin-export
