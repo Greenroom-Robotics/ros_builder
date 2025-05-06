@@ -62,7 +62,7 @@ if __name__ == "__main__":
     # If we are builing for arm, also build a version for v8 to use on a Jetson
     if args.arch == "arm64":
         build_image(
-            base_image="dustynv/opencv:{JETSON_VERSION}",
+            base_image=f"dustynv/opencv:{JETSON_VERSION}",
             ros_distro=args.ros_distro,
             arch=args.arch,
             tags=[
