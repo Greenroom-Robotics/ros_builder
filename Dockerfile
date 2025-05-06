@@ -137,6 +137,7 @@ COPY ./external.repos ./external.repos
 RUN mkdir external
 RUN vcs import external < ./external.repos
 RUN apt-get update && rosdep update && rosdep install -y -i --from-paths external
+RUN pip install lark-parser
 
 RUN mkdir /opt/ros/${ROS_DISTRO}-ext && sudo chown -R ros:ros /opt/ros/${ROS_DISTRO}-ext
 
