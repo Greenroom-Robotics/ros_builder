@@ -161,5 +161,9 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloa
 
 USER ros
 
+# Make sure we own the venv directory if it exists
+# This is where packages are installed on l4t / jetson
+RUN [ -d /opt/venv ] && sudo chown -R ros:ros /opt/venv
+
 # Install poetry as ros user
 RUN pip install poetry poetry-plugin-export
