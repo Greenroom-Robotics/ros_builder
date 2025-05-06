@@ -64,10 +64,10 @@ if __name__ == "__main__":
         build_image(
             base_image="dustynv/opencv:{JETSON_VERSION}",
             ros_distro=args.ros_distro,
-            arch=f"{args.arch}/v8",
+            arch=args.arch,
             tags=[
-                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-{args.arch}-v8",
-                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-{args.arch}-v8"
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-jetson-{args.arch}",
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-jetson-{args.arch}"
             ],
             push=args.push,
         )
