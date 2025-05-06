@@ -8,6 +8,7 @@ from typing import List, Dict
 UBUNTU_VERSION = "24.04"
 UBUNTU_CODENAME = "noble"
 CUDA_VERSION = f"12.6.3-cudnn-devel-ubuntu{UBUNTU_VERSION}"
+JETSON_VERSION = "4.11.0-r36.4.0-cu128-24.04"
 
 ENV = Dict[str, str]
 
@@ -57,6 +58,20 @@ if __name__ == "__main__":
         ],
         push=args.push,
     )
+    
+    # If we are builing for arm, also build a version for v8 to use on a Jetson
+    if args.arch == "arm64":
+        build_image(
+            base_image="dustynv/opencv:{JETSON_VERSION}",
+            ros_distro=args.ros_distro,
+            arch=f"{args.arch}/v8",
+            tags=[
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-{args.arch}-v8",
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-{args.arch}-v8"
+            ],
+            push=args.push,
+        )
+        
     build_image(
         base_image=f"ubuntu:{UBUNTU_CODENAME}",
         ros_distro=args.ros_distro,
@@ -67,3 +82,4 @@ if __name__ == "__main__":
         ],
         push=args.push,
     )
+    
