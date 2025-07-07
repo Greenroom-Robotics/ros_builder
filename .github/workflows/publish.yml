@@ -8,9 +8,9 @@ jobs:
     strategy:
         matrix:
           job:
-            - runner: buildjet-8vcpu-ubuntu-2204
+            - runner: 4vcpu-ubuntu-2404
               arch: amd64
-            - runner: buildjet-8vcpu-ubuntu-2204-arm
+            - runner: 4vcpu-ubuntu-2404-arm
               arch: arm64
 
     name: Release - ${{ matrix.job.arch }}
@@ -22,11 +22,9 @@ jobs:
 
     steps:
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          version: v0.10.2
+        uses: docker/setup-buildx-action@v3
       - name: Docker Login
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -35,7 +33,7 @@ jobs:
         with:
           ref: iron
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
       - name: Install npm dependencies
         run: yarn install --frozen-lockfile
       - name: Release
@@ -48,12 +46,12 @@ jobs:
 
   create-manifest:
     name: Create Multi-Arch Manifest
-    runs-on: buildjet-2vcpu-ubuntu-2204
+    runs-on: 2vcpu-ubuntu-2404
     needs: release
 
     steps:
     - name: Login to GitHub Container Registry
-      uses: docker/login-action@v1
+      uses: docker/login-action@v3
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
@@ -73,6 +71,9 @@ jobs:
         docker manifest create ghcr.io/greenroom-robotics/ros_builder:iron-latest-cuda \
           ghcr.io/greenroom-robotics/ros_builder:iron-latest-cuda-amd64 \
           ghcr.io/greenroom-robotics/ros_builder:iron-latest-cuda-arm64
+
+        docker manifest create ghcr.io/greenroom-robotics/ros_builder:iron-latest-cuda-jetson \
+          ghcr.io/greenroom-robotics/ros_builder:iron-latest-cuda-jetson-arm64
         
         docker manifest create ghcr.io/greenroom-robotics/ros_builder:iron-${{ needs.release.outputs.version }} \
           ghcr.io/greenroom-robotics/ros_builder:iron-${{ needs.release.outputs.version }}-amd64 \
@@ -82,7 +83,12 @@ jobs:
           ghcr.io/greenroom-robotics/ros_builder:iron-${{ needs.release.outputs.version }}-cuda-amd64 \
           ghcr.io/greenroom-robotics/ros_builder:iron-${{ needs.release.outputs.version }}-cuda-arm64
 
+        docker manifest create ghcr.io/greenroom-robotics/ros_builder:iron-${{ needs.release.outputs.version }}-cuda-jetson \
+          ghcr.io/greenroom-robotics/ros_builder:iron-${{ needs.release.outputs.version }}-cuda-jetson-arm64
+
         docker manifest push ghcr.io/greenroom-robotics/ros_builder:iron-latest
         docker manifest push ghcr.io/greenroom-robotics/ros_builder:iron-latest-cuda
+        docker manifest push ghcr.io/greenroom-robotics/ros_builder:iron-latest-cuda-jetson
         docker manifest push ghcr.io/greenroom-robotics/ros_builder:iron-${{ needs.release.outputs.version }}
         docker manifest push ghcr.io/greenroom-robotics/ros_builder:iron-${{ needs.release.outputs.version }}-cuda
+        docker manifest push ghcr.io/greenroom-robotics/ros_builder:iron-${{ needs.release.outputs.version }}-cuda-jetson

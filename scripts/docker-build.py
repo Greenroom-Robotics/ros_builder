@@ -5,6 +5,11 @@ import subprocess
 from typing import List, Dict
 
 
+UBUNTU_VERSION = "22.04"
+UBUNTU_CODENAME = "jammy"
+CUDA_VERSION = f"12.6.3-cudnn-devel-ubuntu{UBUNTU_VERSION}"
+JETSON_VERSION = "4.11.0-r36.4.0-cu128-24.04"
+
 ENV = Dict[str, str]
 
 
@@ -37,31 +42,39 @@ if __name__ == "__main__":
                         help="Version of the image (e.g. 1.0.0)")
     parser.add_argument('--arch', required=True,
                         help="architecture of the image (e.g. amd64, arm64, etc.)")
+    parser.add_argument('--no-cuda', required=False, action='store_true',
+                        help="skip building CUDA images")
     parser.add_argument('--push', default=False, type=bool,
                         help="Should we push the image to the registry?")
     args = parser.parse_args()
 
-
-    if args.ros_distro == "jazzy":
-        UBUNTU_VERSION = "24.04"
-        UBUNTU_CODENAME = "noble"
-        CUDA_VERSION = f"12.6.3-cudnn-devel-ubuntu{UBUNTU_VERSION}"
-    elif args.ros_distro == "iron":
-        UBUNTU_VERSION = "22.04"
-        UBUNTU_CODENAME = "jammy"
-        CUDA_VERSION = f"12.3.2-cudnn9-devel-ubuntu{UBUNTU_VERSION}"
-
     # Build images
-    build_image(
-        base_image=f"nvidia/cuda:{CUDA_VERSION}",
-        ros_distro=args.ros_distro,
-        arch=args.arch,
-        tags=[
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-{args.arch}",
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-{args.arch}"
-        ],
-        push=args.push,
-    )
+
+    if not args.no_cuda:
+        build_image(
+            base_image=f"nvidia/cuda:{CUDA_VERSION}",
+            ros_distro=args.ros_distro,
+            arch=args.arch,
+            tags=[
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-{args.arch}",
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-{args.arch}"
+            ],
+            push=args.push,
+        )
+    
+    # If we are builing for arm, also build a version for v8 to use on a Jetson
+    if args.arch == "arm64":
+        build_image(
+            base_image=f"dustynv/opencv:{JETSON_VERSION}",
+            ros_distro=args.ros_distro,
+            arch=args.arch,
+            tags=[
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-jetson-{args.arch}",
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-jetson-{args.arch}"
+            ],
+            push=args.push,
+        )
+        
     build_image(
         base_image=f"ubuntu:{UBUNTU_CODENAME}",
         ros_distro=args.ros_distro,
@@ -72,3 +85,4 @@ if __name__ == "__main__":
         ],
         push=args.push,
     )
+    

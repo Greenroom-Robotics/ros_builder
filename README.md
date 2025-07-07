@@ -13,10 +13,9 @@ This builds a base ROS 2 docker image used for building Greenroom packages.
 
 There are 4 different variations of `ros_builder`. See [ghcr](https://github.com/Greenroom-Robotics/ros_builder/pkgs/container/ros_builder). These are
 
-* ` ghcr.io/greenroom-robotics/ros_builder:iron-lastest` **AMD64**
-* ` ghcr.io/greenroom-robotics/ros_builder:iron-lastest-cuda` **AMD64**
-* ` ghcr.io/greenroom-robotics/ros_builder:iron-lastest` **ARM64**
-* ` ghcr.io/greenroom-robotics/ros_builder:iron-lastest-cuda` **ARM64**
+* ` ghcr.io/greenroom-robotics/ros_builder:iron-latest` **AMD64** & **ARM64**
+* ` ghcr.io/greenroom-robotics/ros_builder:iron-latest-cuda` **AMD64** & **ARM64**
+* ` ghcr.io/greenroom-robotics/ros_builder:iron-latest-cuda-jetson` **ARM64**
 
 ## Releasing
 
