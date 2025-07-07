@@ -13,9 +13,9 @@ This builds a base ROS 2 docker image used for building Greenroom packages.
 
 There are 4 different variations of `ros_builder`. See [ghcr](https://github.com/Greenroom-Robotics/ros_builder/pkgs/container/ros_builder). These are
 
-* ` ghcr.io/greenroom-robotics/ros_builder:jazzy-latest` **AMD64** & **ARM64**
-* ` ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda` **AMD64** & **ARM64**
-* ` ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-jetson` **ARM64**
+* ` ghcr.io/greenroom-robotics/ros_builder:iron-latest` **AMD64** & **ARM64**
+* ` ghcr.io/greenroom-robotics/ros_builder:iron-latest-cuda` **AMD64** & **ARM64**
+* ` ghcr.io/greenroom-robotics/ros_builder:iron-latest-cuda-jetson` **ARM64**
 
 ## Releasing
 
@@ -30,4 +30,4 @@ Trigger the [publish.yml](./.github/workflows/publish.yml) github action
 *This will be fast(er) to build but slow to upload.*
 
 * `yarn version --patch|minor|major`
-* `python3 scripts/docker-build.py --version 1.0.0 --arch amd64 --ros_distro jazzy`
+* `python3 scripts/docker-build.py --version 1.0.0 --arch amd64 --ros_distro iron`
