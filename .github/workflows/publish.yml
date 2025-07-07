@@ -7,13 +7,14 @@ jobs:
   release:
     strategy:
         matrix:
+          ros_distro: [iron, jazzy, rolling]
           job:
             - runner: 4vcpu-ubuntu-2404
               arch: amd64
             - runner: 4vcpu-ubuntu-2404-arm
               arch: arm64
 
-    name: Release - ${{ matrix.job.arch }}
+    name: Release - ${{ matrix.ros_distro }} - ${{ matrix.job.arch }}
     runs-on: ${{ matrix.job.runner }}
 
     outputs:
@@ -40,12 +41,16 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
           GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
           GITHUB_USER: ${{ github.actor }}
+          ROS_DISTRO: ${{ matrix.ros_distro }}
         run: yarn run semantic-release --extends ./release.config.${{ matrix.job.arch }}.js --tag-format='${version}-${{ matrix.job.arch }}'
 
   create-manifest:
-    name: Create Multi-Arch Manifest
+    name: Create Multi-Arch Manifest - ${{ matrix.ros_distro }}
     runs-on: 2vcpu-ubuntu-2404
     needs: release
+    strategy:
+      matrix:
+        ros_distro: [iron, jazzy]
 
     steps:
     - name: Login to GitHub Container Registry
@@ -62,31 +67,31 @@ jobs:
         echo Published ${{ needs.release.outputs.published }}
         echo Version ${{ needs.release.outputs.version }}
 
-        docker manifest create ghcr.io/greenroom-robotics/ros_builder:jazzy-latest \
-          ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-amd64 \
-          ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-arm64
+        docker manifest create ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-latest \
+          ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-latest-amd64 \
+          ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-latest-arm64
         
-        docker manifest create ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda \
-          ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-amd64 \
-          ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-arm64
+        docker manifest create ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-latest-cuda \
+          ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-latest-cuda-amd64 \
+          ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-latest-cuda-arm64
 
-        docker manifest create ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-jetson \
-          ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-jetson-arm64
+        docker manifest create ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-latest-cuda-jetson \
+          ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-latest-cuda-jetson-arm64
         
-        docker manifest create ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }} \
-          ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-amd64 \
-          ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-arm64
+        docker manifest create ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-${{ needs.release.outputs.version }} \
+          ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-${{ needs.release.outputs.version }}-amd64 \
+          ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-${{ needs.release.outputs.version }}-arm64
 
-        docker manifest create ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-cuda \
-          ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-cuda-amd64 \
-          ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-cuda-arm64
+        docker manifest create ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-${{ needs.release.outputs.version }}-cuda \
+          ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-${{ needs.release.outputs.version }}-cuda-amd64 \
+          ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-${{ needs.release.outputs.version }}-cuda-arm64
 
-        docker manifest create ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-cuda-jetson \
-          ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-cuda-jetson-arm64
+        docker manifest create ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-${{ needs.release.outputs.version }}-cuda-jetson \
+          ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-${{ needs.release.outputs.version }}-cuda-jetson-arm64
 
-        docker manifest push ghcr.io/greenroom-robotics/ros_builder:jazzy-latest
-        docker manifest push ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda
-        docker manifest push ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-jetson
-        docker manifest push ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}
-        docker manifest push ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-cuda
-        docker manifest push ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-cuda-jetson
+        docker manifest push ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-latest
+        docker manifest push ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-latest-cuda
+        docker manifest push ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-latest-cuda-jetson
+        docker manifest push ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-${{ needs.release.outputs.version }}
+        docker manifest push ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-${{ needs.release.outputs.version }}-cuda
+        docker manifest push ghcr.io/greenroom-robotics/ros_builder:${{ matrix.ros_distro }}-${{ needs.release.outputs.version }}-cuda-jetson

@@ -50,11 +50,8 @@ ENV LC_ALL=C.UTF-8
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
-    gcc-14-base \
-    g++-14 \
     gdb \
     cmake \
-    sccache \
     debhelper \
     dh-python \
     dpkg-dev \
@@ -85,14 +82,24 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
     # vulcanexus-${ROS_DISTRO}-core \
 
+# Install additional packages if Ubuntu is noble
+RUN if [ "$(source /etc/os-release && echo $UBUNTU_CODENAME)" = "noble" ]; then \
+  apt-get update && apt-get install --no-install-recommends -y \
+  gcc-14-base \
+  g++-14 \
+  sccache; \
+  fi
+
 RUN curl -L https://github.com/rr-debugger/rr/releases/download/5.8.0/rr-5.8.0-Linux-$(uname -m).deb --output rr.deb && dpkg --install rr.deb && rm rr.deb
 
-# set gcc version to latest available on ubuntu rel
-RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14 && \
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14 && \
-    update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-14 14 && \
-    update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-14 14 && \
-    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-14 14
+# set gcc version to latest available on ubuntu rel, only if using noble
+RUN if [ "$(source /etc/os-release && echo $UBUNTU_CODENAME)" = "noble" ]; then \
+  update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14 && \
+  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14 && \
+  update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-14 14 && \
+  update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-14 14 && \
+  update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-14 14; \
+  fi
 
 # Remove EXTERNALLY-MANAGED so we don't need to add --break-system-packages to pip
 RUN sudo rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED
@@ -124,10 +131,12 @@ RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/g
 RUN apt-get remove python3-rosdep -y
 RUN pip install -U https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/greenroom.zip
 
-RUN usermod --move-home --home /home/ros --login ros ubuntu && \
-    usermod -a -G audio,video,sudo,plugdev,dialout ros && \
-    passwd -d ros && \
-    groupmod --new-name ros ubuntu
+RUN id -u ubuntu &>/dev/null && \
+  usermod --move-home --home /home/ros --login ros ubuntu && \
+  usermod -a -G audio,video,sudo,plugdev,dialout ros && \
+  passwd -d ros && \
+  groupmod --new-name ros ubuntu || \
+  (useradd -m -s /bin/bash -G audio,video,sudo,plugdev,dialout ros && passwd -d ros)
 
 # Build external source packages
 WORKDIR /home/ros
@@ -136,7 +145,7 @@ WORKDIR /home/ros
 COPY ./external.repos ./external.repos
 RUN mkdir external
 RUN vcs import external < ./external.repos
-RUN apt-get update && rosdep update && rosdep install -y -i --from-paths external
+RUN apt-get update && rosdep update --include-eol-distros && rosdep install -y -i --from-paths external
 RUN pip install lark-parser
 
 RUN mkdir /opt/ros/${ROS_DISTRO}-ext && sudo chown -R ros:ros /opt/ros/${ROS_DISTRO}-ext
@@ -152,9 +161,11 @@ ENV PATH="/home/ros/.local/bin:${PATH}"
 
 # Install greenroom public packages
 RUN curl -s https://raw.githubusercontent.com/Greenroom-Robotics/public_packages/main/scripts/setup-apt.sh | bash -s
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    apt-get update && apt-get install --no-install-recommends -y \
-    ros-${ROS_DISTRO}-rmw-zenoh-cpp=10.2.0-*
+RUN if [ "$ROS_DISTRO" != "iron" ]; then \
+  --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  apt-get update && apt-get install --no-install-recommends -y \
+  ros-${ROS_DISTRO}-rmw-zenoh-cpp=10.2.0-*; \
+fi
 
 # Enable caching of apt packages: https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#example-cache-apt-packages
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache

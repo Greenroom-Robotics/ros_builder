@@ -5,10 +5,19 @@ import subprocess
 from typing import List, Dict
 
 
-UBUNTU_VERSION = "24.04"
-UBUNTU_CODENAME = "noble"
-CUDA_VERSION = f"12.6.3-cudnn-devel-ubuntu{UBUNTU_VERSION}"
 JETSON_VERSION = "4.11.0-r36.4.0-cu128-24.04"
+
+UBUNTU_CODENAMES_FOR_ROS_DISTROS = {
+    "iron": "jammy",
+    "jazzy": "noble",
+    "rolling": "noble",
+}
+
+CUDA_VERSION_FOR_ROS_DISTROS = {
+    "iron": "12.6.3-cudnn-devel-ubuntu22.04",
+    "jazzy": "12.6.3-cudnn-devel-ubuntu24.04",
+    "rolling": "12.6.3-cudnn-devel-ubuntu24.04",
+}
 
 ENV = Dict[str, str]
 
@@ -49,7 +58,7 @@ if __name__ == "__main__":
 
     # Build images
     build_image(
-        base_image=f"nvidia/cuda:{CUDA_VERSION}",
+        base_image=f"nvidia/cuda:{CUDA_VERSION_FOR_ROS_DISTROS[args.ros_distro]}",
         ros_distro=args.ros_distro,
         arch=args.arch,
         tags=[
@@ -73,7 +82,7 @@ if __name__ == "__main__":
         )
         
     build_image(
-        base_image=f"ubuntu:{UBUNTU_CODENAME}",
+        base_image=f"ubuntu:{UBUNTU_CODENAMES_FOR_ROS_DISTROS[args.ros_distro]}",
         ros_distro=args.ros_distro,
         arch=args.arch,
         tags=[
