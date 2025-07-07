@@ -13,7 +13,7 @@ ENV RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 
 # setup timezone
 RUN echo 'Etc/UTC' > /etc/timezone && \
-    ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
+    ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
     apt-get update && \
     apt-get install -q -y --no-install-recommends tzdata && \
     rm -rf /var/lib/apt/lists/*
@@ -25,6 +25,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 # install packages
 RUN apt-get update && apt-get dist-upgrade -q -y && apt-get install -q -y --no-install-recommends \
     less \
+    iproute2 \
     dirmngr \
     gnupg2 \
     curl \
@@ -32,14 +33,12 @@ RUN apt-get update && apt-get dist-upgrade -q -y && apt-get install -q -y --no-i
     && rm -rf /var/lib/apt/lists/*
 
 # setup ros2 apt sources
-RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2-testing/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" > /etc/apt/sources.list.d/ros2.list
-# RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/vulcanexus-archive-keyring.gpg] http://repo.vulcanexus.org/debian $(source /etc/os-release && echo $UBUNTU_CODENAME) main" > /etc/apt/sources.list.d/vulcanexus.list
-RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/gazebo-stable-keyring.gpg]  http://packages.osrfoundation.org/gazebo/ubuntu-stable $(source /etc/os-release && echo $UBUNTU_CODENAME) main" > /etc/apt/sources.list.d/gazebo-stable.list
+RUN ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}') \
+  && curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $VERSION_CODENAME)_all.deb" && \
+  apt install /tmp/ros2-apt-source.deb
 
-# setup keys
-RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg \
-  && curl -sSL https://packages.osrfoundation.org/gazebo.key | gpg --dearmor -o /usr/share/keyrings/gazebo-stable-keyring.gpg
-# && curl -sSL https://raw.githubusercontent.com/eProsima/vulcanexus/main/vulcanexus.key -o /usr/share/keyrings/vulcanexus-archive-keyring.gpg \
+# setup vulcanexus keys
+# RUN curl -sSL https://raw.githubusercontent.com/eProsima/vulcanexus/main/vulcanexus.key -o /usr/share/keyrings/vulcanexus-archive-keyring.gpg \
 
 # setup environment
 ENV LANG=C.UTF-8
@@ -49,10 +48,11 @@ ENV LC_ALL=C.UTF-8
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
-    gcc-12-base \
-    g++-12 \
+    gcc-14-base \
+    g++-14 \
     gdb \
     cmake \
+    sccache \
     debhelper \
     dh-python \
     dpkg-dev \
@@ -67,6 +67,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     python3-invoke \
     python3-pip \
     python3-pytest-cov \
+    python3-pytest-rerunfailures \
     python3-rosdep \
     python3-setuptools \
     python3-vcstool \
@@ -76,18 +77,22 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     ros-${ROS_DISTRO}-ros-core \
     ros-${ROS_DISTRO}-geographic-msgs \
     ros-${ROS_DISTRO}-example-interfaces \
-    wget
-
+    wget \
+    bpfcc-tools \
+    bpftrace
     # vulcanexus-${ROS_DISTRO}-core \
 
-RUN curl -L https://github.com/rr-debugger/rr/releases/download/5.8.0/rr-5.8.0-Linux-$(uname -m).deb --output rr.deb && dpkg --install rr.deb && rm rr.deb
+RUN curl -L https://github.com/rr-debugger/rr/releases/download/5.9.0/rr-5.9.0-Linux-$(uname -m).deb --output rr.deb && dpkg --install rr.deb && rm rr.deb
 
 # set gcc version to latest available on ubuntu rel
-RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12 && \
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 && \
-    update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-12 12 && \
-    update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-12 12 && \
-    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-12 12
+RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14 && \
+    update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-14 14 && \
+    update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-14 14 && \
+    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-14 14
+
+# Remove EXTERNALLY-MANAGED so we don't need to add --break-system-packages to pip
+RUN sudo rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED
 
 # Remove EXTERNALLY-MANAGED so we don't need to add --break-system-packages to pip
 RUN sudo rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED
@@ -105,7 +110,7 @@ RUN colcon mixin add default \
     colcon metadata update
 
 # install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_22.x | bash -
 
 # install yarn and pyright
 RUN apt-get install -y nodejs && npm install --global yarn pyright
@@ -119,9 +124,10 @@ RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/g
 RUN apt-get remove python3-rosdep -y
 RUN pip install -U https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/greenroom.zip
 
-RUN useradd --create-home --home /home/ros --shell /bin/bash --uid 1000 ros && \
+RUN usermod --move-home --home /home/ros --login ros ubuntu && \
+    usermod -a -G audio,video,sudo,plugdev,dialout ros && \
     passwd -d ros && \
-    usermod -a -G audio,video,sudo,plugdev,dialout ros
+    groupmod --new-name ros ubuntu
 
 # Build external source packages
 WORKDIR /home/ros
@@ -130,7 +136,8 @@ WORKDIR /home/ros
 COPY ./external.repos ./external.repos
 RUN mkdir external
 RUN vcs import external < ./external.repos
-RUN apt-get update && rosdep update --rosdistro $ROS_DISTRO --include-eol-distros && rosdep install -y --rosdistro $ROS_DISTRO --include-eol-distros -i --from-paths external
+RUN apt-get update && rosdep update --include-eol-distros && rosdep install -y -i --from-paths external  --include-eol-distros --include-eol-distros 
+RUN pip install lark-parser
 
 RUN mkdir /opt/ros/${ROS_DISTRO}-ext && sudo chown -R ros:ros /opt/ros/${ROS_DISTRO}-ext
 
@@ -143,10 +150,20 @@ ENV ROS_OVERLAY=/opt/ros/${ROS_DISTRO}-ext
 WORKDIR /home/ros
 ENV PATH="/home/ros/.local/bin:${PATH}"
 
+# Install greenroom public packages
+RUN curl -s https://raw.githubusercontent.com/Greenroom-Robotics/public_packages/main/scripts/setup-apt.sh | bash -s
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    apt-get update && apt-get install --no-install-recommends -y \
+    ros-${ROS_DISTRO}-rmw-zenoh-cpp=10.2.0-*
+
 # Enable caching of apt packages: https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#example-cache-apt-packages
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 
 USER ros
+
+# Make sure we own the venv directory if it exists
+# This is where packages are installed on l4t / jetson
+RUN if [ -d /opt/venv ]; then sudo chown -R ros:ros /opt/venv; fi
 
 # Install poetry as ros user
 RUN pip install poetry poetry-plugin-export
