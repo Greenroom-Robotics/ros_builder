@@ -7,6 +7,7 @@ from typing import Dict, List
 UBUNTU_VERSION = "24.04"
 UBUNTU_CODENAME = "noble"
 CUDA_VERSION = f"12.6.3-cudnn-devel-ubuntu{UBUNTU_VERSION}"
+TRT_CONTAINER_VERSION = "24.11"
 
 ENV = Dict[str, str]
 
@@ -24,6 +25,7 @@ def build_image(
         "--provenance=false",
         " ".join([f"-t {tag}" for tag in tags]),
         "--push" if push else "",
+        "--network host" if use_host_networking else "",
         ".",
     ]
     command_str = " ".join(command)
@@ -36,17 +38,35 @@ if __name__ == "__main__":
     # Parse args
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--ros_distro", required=True, help="ROS2 distro to build (e.g. galactic, humble, etc.)"
-    )
-    parser.add_argument("--version", required=True, help="Version of the image (e.g. 1.0.0)")
-    parser.add_argument(
-        "--arch", required=True, help="architecture of the image (e.g. amd64, arm64, etc.)"
+        "--ros_distro",
+        required=True,
+        help="ROS2 distro to build (e.g. galactic, humble, etc.)",
     )
     parser.add_argument(
-        "--no-cuda", required=False, action="store_true", help="skip building CUDA images"
+        "--version", required=True, help="Version of the image (e.g. 1.0.0)"
     )
     parser.add_argument(
-        "--push", default=False, type=bool, help="Should we push the image to the registry?"
+        "--arch",
+        required=True,
+        help="architecture of the image (e.g. amd64, arm64, etc.)",
+    )
+    parser.add_argument(
+        "--no-cuda",
+        required=False,
+        action="store_true",
+        help="skip building CUDA images",
+    )
+    parser.add_argument(
+        "--push",
+        default=False,
+        type=bool,
+        help="Should we push the image to the registry?",
+    )
+    parser.add_argument(
+        "--network-host",
+        default=False,
+        action="store_true",
+        help="Should we use host networking during the build process?",
     )
     args = parser.parse_args()
 
@@ -76,6 +96,7 @@ if __name__ == "__main__":
                 f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-12.6-{args.arch}",
             ],
             push=args.push,
+            use_host_networking=args.network_host,
         )
 
     build_image(
@@ -87,4 +108,5 @@ if __name__ == "__main__":
             f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-{args.arch}",
         ],
         push=args.push,
+        use_host_networking=True,
     )
