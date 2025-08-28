@@ -1,0 +1,49 @@
+# Stage 1: CUDA 12.4 base
+FROM ubuntu:24.04 AS cuda-base
+
+LABEL org.opencontainers.image.source=https://github.com/Greenroom-Robotics/ros_builder
+
+# Install CUDA toolkit 12.4
+RUN apt-get update && apt-get install -y \
+    wget \
+    ca-certificates \
+    libxml2 \
+    build-essential \
+    python3-pip \
+    && wget https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux.run \
+    && sh cuda_12.4.0_550.54.14_linux.run --silent --toolkit \
+    && rm cuda_12.4.0_550.54.14_linux.run \
+    && rm -rf /var/lib/apt/lists/*
+
+# # Install cuDNN 9.12.0 for CUDA 12
+# RUN wget https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-9.12.0.46_cuda12-archive.tar.xz \
+#     && tar -xf cudnn-linux-x86_64-9.12.0.46_cuda12-archive.tar.xz \
+#     && cp cudnn-linux-x86_64-9.12.0.46_cuda12-archive/include/cudnn*.h /usr/local/cuda-12.4/include \
+#     && cp -P cudnn-linux-x86_64-9.12.0.46_cuda12-archive/lib/libcudnn* /usr/local/cuda-12.4/lib64 \
+#     && chmod a+r /usr/local/cuda-12.4/include/cudnn*.h /usr/local/cuda-12.4/lib64/libcudnn* \
+#     && ldconfig \
+#     && rm -rf cudnn-linux-x86_64-9.12.0.46_cuda12-archive*
+
+# # Set CUDA environment variables
+# ENV PATH=/usr/local/cuda-12.4/bin:${PATH}
+# ENV LD_LIBRARY_PATH=/usr/local/cuda-12.4/lib64
+
+# # Stage 2: Add TensorRT 10.5
+# FROM cuda-base AS cuda-tensorrt
+
+# # Install TensorRT 10.5.0 manually
+# RUN wget https://developer.download.nvidia.com/compute/machine-learning/tensorrt/10.5.0/tars/TensorRT-10.5.0.18.Linux.x86_64-gnu.cuda-12.6.cudnn-9.5.tar.gz \
+#     && tar -xzf TensorRT-10.5.0.18.Linux.x86_64-gnu.cuda-12.6.cudnn-9.5.tar.gz \
+#     && cp TensorRT-10.5.0.18/lib/* /usr/local/cuda-12.4/lib64/ \
+#     && cp TensorRT-10.5.0.18/include/* /usr/local/cuda-12.4/include/ \
+#     && cp TensorRT-10.5.0.18/bin/* /usr/local/cuda-12.4/bin/ \
+#     && chmod a+r /usr/local/cuda-12.4/include/Nv*.h \
+#     && chmod a+x /usr/local/cuda-12.4/bin/trtexec \
+#     && ldconfig \
+#     && pip3 install tensorrt-cu12==10.5.0 \
+#     && rm -rf TensorRT-10.5.0.18*
+
+# # Final stage
+# FROM cuda-tensorrt
+
+
