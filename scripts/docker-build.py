@@ -39,7 +39,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--ros_distro", required=True, help="ROS2 distro to build (e.g. galactic, humble, etc.)"
     )
-    parser.add_argument("--version", required=True, help="Version of the image (e.g. 1.0.0)")
+    # parser.add_argument("--version", required=True, help="Version of the image (e.g. 1.0.0)")
     parser.add_argument(
         "--arch", required=True, help="architecture of the image (e.g. amd64, arm64, etc.)"
     )
@@ -74,12 +74,12 @@ if __name__ == "__main__":
 
     # if not args.no_legacy_cuda:
     build_image(
-        base_image="ghcr.io/greenroom-robotics/cuda:12-4",
+        base_image="ghcr.io/greenroom-robotics/cuda:12-4-trt",
         ros_distro=args.ros_distro,
         arch=args.arch,
         tags=[
             # f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-{args.arch}",
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-12-4-{args.arch}",
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-12-4-trt-{args.arch}",
         ],
         push=args.push,
     )
