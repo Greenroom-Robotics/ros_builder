@@ -1,21 +1,12 @@
-FROM ubuntu:24.04 AS cuda-base
+FROM ubuntu:24.04 AS installer
 
-LABEL org.opencontainers.image.source=https://github.com/Greenroom-Robotics/ros_builder
-
-# Install CUDA toolkit 12.4 manually
+# Install build dependencies
 RUN apt-get update && apt-get install -y \
-    wget \
-    ca-certificates \
-    libxml2 \
-    build-essential \
-    python3-pip \
-    && wget https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux.run \
-    && sh cuda_12.4.0_550.54.14_linux.run --silent --toolkit \
-    && rm cuda_12.4.0_550.54.14_linux.run \
-    && rm -rf /var/lib/apt/lists/*
+    wget ca-certificates libxml2 build-essential python3-pip
 
-ENV PATH=/usr/local/cuda-12.4/bin:${PATH}
-ENV LD_LIBRARY_PATH=/usr/local/cuda-12.4/lib64
+# Install CUDA toolkit
+RUN wget https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux.run \
+    && sh cuda_12.4.0_550.54.14_linux.run --silent --toolkit
 
 # Install cuDNN
 COPY cudnn-linux-x86_64-9.1.0.70_cuda12-archive.tar.xz /tmp/
@@ -23,12 +14,9 @@ RUN cd /tmp \
     && tar -xf cudnn-*.tar.xz \
     && cp cudnn-*/include/* /usr/local/cuda-12.4/include/ \
     && cp -P cudnn-*/lib/* /usr/local/cuda-12.4/lib64/ \
-    && ldconfig \
-    && rm -rf /tmp/cudnn-*
+    && ldconfig
 
 # Install TensorRT
-FROM cuda-base AS cuda-tensorrt
-
 COPY TensorRT-10.5.0.18.Linux.x86_64-gnu.cuda-12.6.tar.gz /tmp/
 RUN cd /tmp \
     && tar -xzf TensorRT-*.tar.gz \
@@ -36,14 +24,27 @@ RUN cd /tmp \
     && cp -r TensorRT-10.5.0.18/targets/x86_64-linux-gnu/lib /usr/local/tensorrt/ \
     && cp -r TensorRT-10.5.0.18/targets/x86_64-linux-gnu/include /usr/local/tensorrt/ \
     && cp -r TensorRT-10.5.0.18/targets/x86_64-linux-gnu/bin /usr/local/tensorrt/ \
-    && ldconfig \
-    && cd /tmp/TensorRT-10.5.0.18/python \
-    && pip install tensorrt-10.5.0-cp312-none-linux_x86_64.whl --break-system-packages --force-reinstall --no-deps \
-    && pip install tensorrt_dispatch-10.5.0-cp312-none-linux_x86_64.whl --break-system-packages --force-reinstall --no-deps \
-    && pip install tensorrt_lean-10.5.0-cp312-none-linux_x86_64.whl --break-system-packages --force-reinstall --no-deps \
-    && pip install onnxruntime-gpu==1.20.* --break-system-packages \
-    && rm -rf /tmp/TensorRT-*
+    && cd TensorRT-10.5.0.18/python \
+    && pip install --break-system-packages --force-reinstall --no-deps \
+        tensorrt-10.5.0-cp312-none-linux_x86_64.whl \
+        tensorrt_dispatch-10.5.0-cp312-none-linux_x86_64.whl \
+        tensorrt_lean-10.5.0-cp312-none-linux_x86_64.whl \
+    && pip install --break-system-packages onnxruntime-gpu==1.20.* \
+    && ldconfig
 
+# Final runtime stage
+FROM ubuntu:24.04
+
+COPY --from=installer /usr/local/cuda-12.4 /usr/local/cuda-12.4
+COPY --from=installer /usr/local/tensorrt /usr/local/tensorrt
+COPY --from=installer /usr/local/lib/python3.12/dist-packages /usr/local/lib/python3.12/dist-packages
+
+RUN apt-get update && apt-get install -y \
+    libxml2 python3 python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PATH=/usr/local/cuda-12.4/bin:/usr/local/tensorrt/bin:${PATH}
+ENV LD_LIBRARY_PATH=/usr/local/cuda-12.4/lib64:/usr/local/tensorrt/lib
 ENV TENSORRT_ROOT=/usr/local/tensorrt
-ENV LD_LIBRARY_PATH=/usr/local/tensorrt/lib:$LD_LIBRARY_PATH
-ENV PATH="/usr/local/tensorrt/bin:${PATH}"
+
+LABEL org.opencontainers.image.source=https://github.com/Greenroom-Robotics/ros_builder
