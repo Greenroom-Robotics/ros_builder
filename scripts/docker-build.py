@@ -61,7 +61,7 @@ if __name__ == "__main__":
     # Build images
 
     if not args.no_cuda:
-        # 12.4
+        # 12.4 - this requires the cuda base to be built manually.
         build_image(
             base_image="ghcr.io/greenroom-robotics/cuda:12-4",
             ros_distro=args.ros_distro,
