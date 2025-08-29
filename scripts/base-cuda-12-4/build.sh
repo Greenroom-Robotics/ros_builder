@@ -4,10 +4,10 @@
 # wget https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.5.0/tars/TensorRT-10.5.0.18.Linux.x86_64-gnu.cuda-12.6.tar.gz
 
 docker buildx build \
-    -f Dockerfile.cuda12-4-trt \
+    -f Dockerfile.cuda12-4 \
     --platform linux/amd64 \
     --progress=plain \
-    -t "ghcr.io/greenroom-robotics/cuda:12-4-trt" \
+    -t "ghcr.io/greenroom-robotics/cuda:12-4" \
     .
 
 echo "Build completed successfully!"

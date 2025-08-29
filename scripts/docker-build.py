@@ -60,50 +60,51 @@ if __name__ == "__main__":
 
     # Build images
 
-    # if not args.no_cuda:
-    #     build_image(
-    #         base_image=f"nvidia/cuda:{CUDA_VERSION}",
-    #         ros_distro=args.ros_distro,
-    #         arch=args.arch,
-    #         tags=[
-    #             f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-{args.arch}",
-    #             f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-{args.arch}",
-    #         ],
-    #         push=args.push,
-    #     )
+    if not args.no_cuda:
+        # 12.4
+        build_image(
+            base_image="ghcr.io/greenroom-robotics/cuda:12-4",
+            ros_distro=args.ros_distro,
+            arch=args.arch,
+            tags=[
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-12-4-{args.arch}",
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-12-4-{args.arch}",
+            ],
+            push=args.push,
+        )
 
-    # if not args.no_legacy_cuda:
+        # 12.6
+        build_image(
+            base_image=f"nvidia/cuda:{CUDA_VERSION}",
+            ros_distro=args.ros_distro,
+            arch=args.arch,
+            tags=[
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-12.6-{args.arch}",
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-12.6-{args.arch}",
+            ],
+            push=args.push,
+        )
+
+    # If we are builing for arm, also build a version for v8 to use on a Jetson
+    if args.arch == "arm64":
+        build_image(
+            base_image=f"dustynv/opencv:{JETSON_VERSION}",
+            ros_distro=args.ros_distro,
+            arch=args.arch,
+            tags=[
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-jetson-{args.arch}",
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-jetson-{args.arch}",
+            ],
+            push=args.push,
+        )
+
     build_image(
-        base_image="ghcr.io/greenroom-robotics/cuda:12-4-trt",
+        base_image=f"ubuntu:{UBUNTU_CODENAME}",
         ros_distro=args.ros_distro,
         arch=args.arch,
         tags=[
-            # f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-{args.arch}",
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-12-4-trt-{args.arch}",
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-{args.arch}",
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-{args.arch}",
         ],
         push=args.push,
     )
-
-    # # If we are builing for arm, also build a version for v8 to use on a Jetson
-    # if args.arch == "arm64":
-    #     build_image(
-    #         base_image=f"dustynv/opencv:{JETSON_VERSION}",
-    #         ros_distro=args.ros_distro,
-    #         arch=args.arch,
-    #         tags=[
-    #             f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-jetson-{args.arch}",
-    #             f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-jetson-{args.arch}",
-    #         ],
-    #         push=args.push,
-    #     )
-
-    # build_image(
-    #     base_image=f"ubuntu:{UBUNTU_CODENAME}",
-    #     ros_distro=args.ros_distro,
-    #     arch=args.arch,
-    #     tags=[
-    #         f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-{args.arch}",
-    #         f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-{args.arch}",
-    #     ],
-    #     push=args.push,
-    # )
