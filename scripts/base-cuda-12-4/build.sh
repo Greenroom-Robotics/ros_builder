@@ -10,11 +10,14 @@ docker buildx build \
     -f Dockerfile.cuda12-4 \
     --platform linux/amd64 \
     --progress=plain \
-    -t "ghcr.io/greenroom-robotics/cuda:12-4" \
     -t "ghcr.io/greenroom-robotics/cuda:12-4-amd64" \
     .
 
-docker push "ghcr.io/greenroom-robotics/cuda:12-4"
 docker push "ghcr.io/greenroom-robotics/cuda:12-4-amd64"
 
-echo "Build completed successfully!"
+docker manifest create ghcr.io/greenroom-robotics/cuda:12-4 \
+    ghcr.io/greenroom-robotics/cuda:12-4-amd64
+
+docker manifest push ghcr.io/greenroom-robotics/cuda:12-4
+
+echo "Build and manifest creation completed successfully!"
