@@ -47,13 +47,6 @@ if __name__ == "__main__":
         "--no-cuda", required=False, action="store_true", help="skip building CUDA images"
     )
     parser.add_argument(
-        "--no-legacy-cuda",
-        required=False,
-        default=True,
-        action="store_true",
-        help="skip building legacy CUDA 12.4 images",
-    )
-    parser.add_argument(
         "--push", default=False, type=bool, help="Should we push the image to the registry?"
     )
     args = parser.parse_args()
