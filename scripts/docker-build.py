@@ -61,17 +61,18 @@ if __name__ == "__main__":
     # Build images
 
     if not args.no_cuda:
-        # 12.4
-        build_image(
-            base_image="ghcr.io/greenroom-robotics/cuda:12-4",
-            ros_distro=args.ros_distro,
-            arch=args.arch,
-            tags=[
-                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-12-4-{args.arch}",
-                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-12-4-{args.arch}",
-            ],
-            push=args.push,
-        )
+        if args.arch == "amd64":
+            # 12.4 for x86 - This requires the cuda base to be built manually.
+            build_image(
+                base_image="ghcr.io/greenroom-robotics/cuda:12-4",
+                ros_distro=args.ros_distro,
+                arch=args.arch,
+                tags=[
+                    f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-12-4-{args.arch}",
+                    f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-12-4-{args.arch}",
+                ],
+                push=args.push,
+            )
 
         # 12.6
         build_image(
