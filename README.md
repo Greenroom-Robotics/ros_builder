@@ -15,7 +15,6 @@ There are 4 different variations of `ros_builder`. See [ghcr](https://github.com
 
 * ` ghcr.io/greenroom-robotics/ros_builder:jazzy-latest` **AMD64** & **ARM64**
 * ` ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda` **AMD64** & **ARM64**
-* ` ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-jetson` **ARM64**
 
 ## Releasing
 
