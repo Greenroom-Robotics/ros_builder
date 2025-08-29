@@ -39,7 +39,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--ros_distro", required=True, help="ROS2 distro to build (e.g. galactic, humble, etc.)"
     )
-    # parser.add_argument("--version", required=True, help="Version of the image (e.g. 1.0.0)")
+    parser.add_argument("--version", required=True, help="Version of the image (e.g. 1.0.0)")
     parser.add_argument(
         "--arch", required=True, help="architecture of the image (e.g. amd64, arm64, etc.)"
     )
