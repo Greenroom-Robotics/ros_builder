@@ -16,6 +16,7 @@ def build_image(
     base_image: str, ros_distro: str, arch: str, tags: List[str], push: bool = False, env: ENV = {}
 ):
     print(f"\033[92mBuilding image with base image {base_image} and tags {tags}\033[0m")
+
     command = [
         "docker buildx build",
         f"--platform linux/{arch}",
@@ -32,34 +33,24 @@ def build_image(
         raise Exception(f"Failed to build image with command {command_str}")
 
 
-def main():
+if __name__ == "__main__":
     # Parse args
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--ros_distro",
-        required=True,
-        help="ROS2 distro to build (e.g. galactic, humble, etc.)",
+        "--ros_distro", required=True, help="ROS2 distro to build (e.g. galactic, humble, etc.)"
     )
     parser.add_argument("--version", required=True, help="Version of the image (e.g. 1.0.0)")
     parser.add_argument(
-        "--arch",
-        required=True,
-        help="architecture of the image (e.g. amd64, arm64, etc.)",
+        "--arch", required=True, help="architecture of the image (e.g. amd64, arm64, etc.)"
     )
     parser.add_argument(
-        "--no-cuda",
-        required=False,
-        action="store_true",
-        help="skip building CUDA images",
+        "--no-cuda", required=False, action="store_true", help="skip building CUDA images"
     )
     parser.add_argument(
         "--no-trt", required=False, action="store_true", help="skip building TensorRT images"
     )
     parser.add_argument(
-        "--push",
-        default=False,
-        type=bool,
-        help="Should we push the image to the registry?",
+        "--push", default=False, type=bool, help="Should we push the image to the registry?"
     )
     args = parser.parse_args()
 
@@ -114,7 +105,3 @@ def main():
         ],
         push=args.push,
     )
-
-
-if __name__ == "__main__":
-    main()
