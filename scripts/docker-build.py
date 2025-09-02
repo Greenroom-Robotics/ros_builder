@@ -77,8 +77,8 @@ def main():
         ros_distro=args.ros_distro,
         arch=args.arch,
         tags=[
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-tensorrt-{args.arch}",
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-tensorrt-{args.arch}",
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-12.6-{args.arch}",
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-12.6-{args.arch}",
         ],
         push=args.push,
     )
