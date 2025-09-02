@@ -17,9 +17,15 @@ def build_image(
 ):
     print(f"\033[92mBuilding image with base image {base_image} and tags {tags}\033[0m")
 
+    platform = f"linux/{arch}"
+    if arch == "arm64":
+        # NOTE: assumes jetson == arm64
+        # for jetson to correctly find version in manifest
+        platform += "/v8"
+
     command = [
         "docker buildx build",
-        f"--platform linux/{arch}",
+        f"--platform {platform}",
         f'--build-arg BASE_IMAGE="{base_image}"',
         f'--build-arg ROS_DISTRO="{ros_distro}"',
         "--provenance=false",
