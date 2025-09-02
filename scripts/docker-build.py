@@ -7,7 +7,6 @@ from typing import Dict, List
 UBUNTU_VERSION = "24.04"
 UBUNTU_CODENAME = "noble"
 CUDA_VERSION = f"12.6.3-cudnn-devel-ubuntu{UBUNTU_VERSION}"
-# TODO: upgrade amd64 to also use 25.08
 TRT_CONTAINER_VERSION = "24.11"
 
 ENV = Dict[str, str]
