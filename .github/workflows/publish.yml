@@ -67,7 +67,7 @@ jobs:
           ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-arm64
   
         docker manifest create ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-12.6 \
-          ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-12.6-amd64
+          ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-12.6-amd64 \
           ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-12.6-arm64
 
           docker manifest create ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-12.4 \
