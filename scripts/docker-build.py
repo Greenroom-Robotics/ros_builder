@@ -8,10 +8,7 @@ UBUNTU_VERSION = "24.04"
 UBUNTU_CODENAME = "noble"
 CUDA_VERSION = f"12.6.3-cudnn-devel-ubuntu{UBUNTU_VERSION}"
 # TODO: upgrade amd64 to also use 25.08
-TRT_CONTAINER_VERSIONS = {
-    "arm64": "25.08",
-    "amd64": "24.11",
-}
+TRT_CONTAINER_VERSION = "24.11"
 
 ENV = Dict[str, str]
 
@@ -71,7 +68,7 @@ def main():
     if args.no_cuda:
         return
 
-    base_cuda_img = f"nvcr.io/nvidia/tensorrt:{TRT_CONTAINER_VERSIONS[args.arch]}-py3"
+    base_cuda_img = f"nvcr.io/nvidia/tensorrt:{TRT_CONTAINER_VERSION}-py3"
     if args.arch == "arm64":
         # jetson has an integrated gpu
         base_cuda_img += "-igpu"
