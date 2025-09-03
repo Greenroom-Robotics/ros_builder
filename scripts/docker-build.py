@@ -33,6 +33,15 @@ def build_image(
         raise Exception(f"Failed to build image with command {command_str}")
 
 
+def get_cuda_base_image(arch) -> str:
+    base_img = f"nvcr.io/nvidia/tensorrt:{TRT_CONTAINER_VERSION}-py3"
+    if arch == "arm64":
+        # jetson has an integrated gpu
+        base_img += "-igpu"
+
+    return base_img
+
+
 def main():
     # Parse args
     parser = argparse.ArgumentParser()
@@ -53,6 +62,7 @@ def main():
 
     # Build images
 
+    # base image (no CUDA)
     build_image(
         base_image=f"ubuntu:{UBUNTU_CODENAME}",
         ros_distro=args.ros_distro,
@@ -65,15 +75,12 @@ def main():
     )
 
     if args.no_cuda:
+        # return before building CUDA containers if we are not building them
         return
 
-    base_cuda_img = f"nvcr.io/nvidia/tensorrt:{TRT_CONTAINER_VERSION}-py3"
-    if args.arch == "arm64":
-        # jetson has an integrated gpu
-        base_cuda_img += "-igpu"
-
+    # CUDA 12.6
     build_image(
-        base_image=base_cuda_img,
+        base_image=get_cuda_base_image(args.arch),
         ros_distro=args.ros_distro,
         arch=args.arch,
         tags=[
@@ -84,7 +91,7 @@ def main():
     )
 
     if args.arch == "amd64":
-        # 12.4 for x86 - This requires the cuda base to be built manually.
+        # CUDA 12.4 for x86 - This requires the cuda base to be built manually.
         build_image(
             base_image="ghcr.io/greenroom-robotics/cuda:12.4",
             ros_distro=args.ros_distro,
