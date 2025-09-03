@@ -28,7 +28,6 @@ def build_image(
         ".",
     ]
     command_str = " ".join(command)
-    print(f"building with: {command_str}")
     result = subprocess.run(command_str, shell=True, env=env)
     if result.returncode != 0:
         raise Exception(f"Failed to build image with command {command_str}")
