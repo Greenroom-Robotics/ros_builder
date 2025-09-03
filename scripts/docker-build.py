@@ -17,15 +17,9 @@ def build_image(
 ):
     print(f"\033[92mBuilding image with base image {base_image} and tags {tags}\033[0m")
 
-    platform = f"linux/{arch}"
-    if arch == "arm64":
-        # NOTE: assumes jetson == arm64
-        # for jetson to correctly find version in manifest
-        platform += "/v8"
-
     command = [
         "docker buildx build",
-        f"--platform {platform}",
+        f"--platform linux/{arch}",
         f'--build-arg BASE_IMAGE="{base_image}"',
         f'--build-arg ROS_DISTRO="{ros_distro}"',
         "--provenance=false",
@@ -34,6 +28,7 @@ def build_image(
         ".",
     ]
     command_str = " ".join(command)
+    print(f"building with: {command_str}")
     result = subprocess.run(command_str, shell=True, env=env)
     if result.returncode != 0:
         raise Exception(f"Failed to build image with command {command_str}")
