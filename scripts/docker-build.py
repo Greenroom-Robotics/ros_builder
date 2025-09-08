@@ -6,7 +6,8 @@ from typing import Dict, List
 
 UBUNTU_VERSION = "24.04"
 UBUNTU_CODENAME = "noble"
-TRT_CONTAINER_VERSION = "24.11"
+TRT_CONTAINER_VERSION_12_6 = "24.11"
+TRT_CONTAINER_VERSION_13_0 = "25.08"
 
 ENV = Dict[str, str]
 
@@ -14,6 +15,7 @@ ENV = Dict[str, str]
 def build_image(
     base_image: str, ros_distro: str, arch: str, tags: List[str], push: bool = False, env: ENV = {}
 ):
+    print(f"\033[92mBuilding image with base image {base_image} and tags {tags}\033[0m")
 
     command = [
         "docker buildx build",
@@ -30,7 +32,7 @@ def build_image(
     if result.returncode != 0:
         raise Exception(f"Failed to build image with command {command_str}")
 
-def get_cuda_base_image(arch: str, container_version: str = TRT_CONTAINER_VERSION) -> str:
+def get_cuda_base_image(arch: str, container_version: str = TRT_CONTAINER_VERSION_12_6) -> str:
     base_img = f"nvcr.io/nvidia/tensorrt:{container_version}-py3"
     if arch == "arm64":
         # jetson has an integrated gpu
@@ -53,7 +55,7 @@ def build_x86_specific_images(args):
 
     # CUDA 13.0 - not yet supported on jetson/arm
     build_image(
-        base_image=get_cuda_base_image(args.arch, container_version="25.08"),
+        base_image=get_cuda_base_image(args.arch, container_version=TRT_CONTAINER_VERSION_13_0),
         ros_distro=args.ros_distro,
         arch=args.arch,
         tags=[
@@ -118,4 +120,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    print(f"\033[92mBuilding image with base image {base_image} and tags {tags}\033[0m")
