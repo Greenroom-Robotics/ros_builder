@@ -73,6 +73,9 @@ jobs:
         docker manifest create ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-12.4 \
           ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-12.4-amd64
 
+        docker manifest create ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-13.0 \
+          ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-13.0-amd64
+
         docker manifest create ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }} \
           ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-amd64 \
           ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-arm64
@@ -83,10 +86,15 @@ jobs:
 
         docker manifest create ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-cuda-12.4 \
           ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-cuda-12.4-amd64
+
+        docker manifest create ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-cuda-13.0 \
+          ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-cuda-13.0-amd64
         
         docker manifest push ghcr.io/greenroom-robotics/ros_builder:jazzy-latest
         docker manifest push ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-12.4
         docker manifest push ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-12.6
+        docker manifest push ghcr.io/greenroom-robotics/ros_builder:jazzy-latest-cuda-13.0
         docker manifest push ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}
         docker manifest push ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-cuda-12.4
         docker manifest push ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-cuda-12.6
+        docker manifest push ghcr.io/greenroom-robotics/ros_builder:jazzy-${{ needs.release.outputs.version }}-cuda-13.0
