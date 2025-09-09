@@ -7,7 +7,7 @@ from typing import Dict, List
 UBUNTU_VERSION = "24.04"
 UBUNTU_CODENAME = "noble"
 TRT_CONTAINER_VERSION_12_6 = "24.11"
-TRT_CONTAINER_VERSION_13_0 = "25.08"
+TRT_CONTAINER_VERSION_12_9 = "25.06"
 
 ENV = Dict[str, str]
 
@@ -55,12 +55,12 @@ def build_x86_specific_images(args):
 
     # CUDA 13.0 - not yet supported on jetson/arm
     build_image(
-        base_image=get_cuda_base_image(args.arch, container_version=TRT_CONTAINER_VERSION_13_0),
+        base_image=get_cuda_base_image(args.arch, container_version=TRT_CONTAINER_VERSION_12_9),
         ros_distro=args.ros_distro,
         arch=args.arch,
         tags=[
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-13.0-{args.arch}",
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-13.0-{args.arch}",
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-12.9-{args.arch}",
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-12.9-{args.arch}",
         ],
         push=args.push,
     )
