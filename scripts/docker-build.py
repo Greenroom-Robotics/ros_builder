@@ -6,8 +6,8 @@ from typing import Dict, List
 
 UBUNTU_VERSION = "24.04"
 UBUNTU_CODENAME = "noble"
-TRT_CONTAINER_VERSION_12_6 = "24.11"
-TRT_CONTAINER_VERSION_12_9 = "25.06"
+CUDA_12_6_TRT_CONTAINER_VERSION = "24.11"
+CUDA_12_9_TRT_CONTAINER_VERSION = "25.06"
 
 ENV = Dict[str, str]
 
@@ -32,7 +32,7 @@ def build_image(
     if result.returncode != 0:
         raise Exception(f"Failed to build image with command {command_str}")
 
-def get_cuda_base_image(arch: str, container_version: str = TRT_CONTAINER_VERSION_12_6) -> str:
+def get_cuda_base_image(arch: str, container_version: str = CUDA_12_6_TRT_CONTAINER_VERSION) -> str:
     base_img = f"nvcr.io/nvidia/tensorrt:{container_version}-py3"
     if arch == "arm64":
         # jetson has an integrated gpu
@@ -53,9 +53,9 @@ def build_x86_specific_images(args):
         push=args.push,
     )
 
-    # CUDA 13.0 - not yet supported on jetson/arm
+    # CUDA 12.9 - not yet supported on jetson/arm
     build_image(
-        base_image=get_cuda_base_image(args.arch, container_version=TRT_CONTAINER_VERSION_12_9),
+        base_image=get_cuda_base_image(args.arch, container_version=CUDA_12_9_TRT_CONTAINER_VERSION),
         ros_distro=args.ros_distro,
         arch=args.arch,
         tags=[
