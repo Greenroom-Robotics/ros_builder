@@ -40,7 +40,7 @@ def get_cuda_base_image(arch: str, container_version: str = CUDA_12_6_TRT_CONTAI
 
     return base_img
 
-def build_x86_specific_images(args):
+def build_amd64_specific_images(args):
     # CUDA 12.4 - This requires the cuda base to be built manually.
     build_image(
         base_image="ghcr.io/greenroom-robotics/cuda:12.4",
@@ -115,7 +115,7 @@ def main():
     )
 
     if args.arch == "amd64":
-        build_x86_specific_images(args)
+        build_amd64_specific_images(args)
 
 
 if __name__ == "__main__":
