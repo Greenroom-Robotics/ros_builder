@@ -6,8 +6,8 @@ from typing import Dict, List
 
 UBUNTU_VERSION = "24.04"
 UBUNTU_CODENAME = "noble"
-CUDA_VERSION = f"12.6.3-cudnn-devel-ubuntu{UBUNTU_VERSION}"
-TRT_CONTAINER_VERSION = "24.11"
+CUDA_12_6_TRT_CONTAINER_VERSION = "24.11"
+CUDA_12_9_TRT_CONTAINER_VERSION = "25.06"
 
 ENV = Dict[str, str]
 
@@ -32,14 +32,38 @@ def build_image(
     if result.returncode != 0:
         raise Exception(f"Failed to build image with command {command_str}")
 
-
-def get_cuda_base_image(arch) -> str:
-    base_img = f"nvcr.io/nvidia/tensorrt:{TRT_CONTAINER_VERSION}-py3"
+def get_cuda_base_image(arch: str, container_version: str = CUDA_12_6_TRT_CONTAINER_VERSION) -> str:
+    base_img = f"nvcr.io/nvidia/tensorrt:{container_version}-py3"
     if arch == "arm64":
         # jetson has an integrated gpu
         base_img += "-igpu"
 
     return base_img
+
+def build_amd64_specific_images(args):
+    # CUDA 12.4 - This requires the cuda base to be built manually.
+    build_image(
+        base_image="ghcr.io/greenroom-robotics/cuda:12.4",
+        ros_distro=args.ros_distro,
+        arch=args.arch,
+        tags=[
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-12.4-{args.arch}",
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-12.4-{args.arch}",
+        ],
+        push=args.push,
+    )
+
+    # CUDA 12.9 - not yet supported on jetson/arm
+    build_image(
+        base_image=get_cuda_base_image(args.arch, container_version=CUDA_12_9_TRT_CONTAINER_VERSION),
+        ros_distro=args.ros_distro,
+        arch=args.arch,
+        tags=[
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-12.9-{args.arch}",
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-12.9-{args.arch}",
+        ],
+        push=args.push,
+    )
 
 
 def main():
@@ -91,17 +115,7 @@ def main():
     )
 
     if args.arch == "amd64":
-        # CUDA 12.4 for x86 - This requires the cuda base to be built manually.
-        build_image(
-            base_image="ghcr.io/greenroom-robotics/cuda:12.4",
-            ros_distro=args.ros_distro,
-            arch=args.arch,
-            tags=[
-                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-12.4-{args.arch}",
-                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-12.4-{args.arch}",
-            ],
-            push=args.push,
-        )
+        build_amd64_specific_images(args)
 
 
 if __name__ == "__main__":
