@@ -73,6 +73,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     python3-vcstool \
     clang-format \
     ros-${ROS_DISTRO}-rmw-fastrtps-cpp \
+    ros-${ROS_DISTRO}-rmw-zenoh-cpp \
     ros-${ROS_DISTRO}-ros-base \
     ros-${ROS_DISTRO}-ros-core \
     ros-${ROS_DISTRO}-geographic-msgs \
@@ -150,9 +151,6 @@ ENV PATH="/home/ros/.local/bin:${PATH}"
 
 # Install greenroom public packages
 RUN curl -s https://raw.githubusercontent.com/Greenroom-Robotics/public_packages/main/scripts/setup-apt.sh | bash -s
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    apt-get update && apt-get install --no-install-recommends -y \
-    ros-${ROS_DISTRO}-rmw-zenoh-cpp
 
 # Enable caching of apt packages: https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#example-cache-apt-packages
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
