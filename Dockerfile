@@ -34,10 +34,13 @@ RUN apt-get update && \
 # Install packages
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
     less \
+    sudo \
     iproute2 \
     dirmngr \
     gnupg2 \
     curl \
+    wget \
+    git \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
@@ -79,7 +82,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     dh-python \
     dpkg-dev \
     fakeroot \
-    git \
     jq \
     iputils-ping \
     python3-catkin-pkg \
@@ -100,7 +102,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     ros-${ROS_DISTRO}-ros-core \
     ros-${ROS_DISTRO}-geographic-msgs \
     ros-${ROS_DISTRO}-example-interfaces \
-    wget \
     bpfcc-tools \
     bpftrace
 
