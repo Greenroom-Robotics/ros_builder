@@ -46,8 +46,8 @@ RUN ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastruc
   && curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $VERSION_CODENAME)_all.deb" && \
   apt install /tmp/ros2-apt-source.deb
 
-# setup vulcanexus keys
-# RUN curl -sSL https://raw.githubusercontent.com/eProsima/vulcanexus/main/vulcanexus.key -o /usr/share/keyrings/vulcanexus-archive-keyring.gpg \
+# Install greenroom public packages
+RUN curl -s https://raw.githubusercontent.com/Greenroom-Robotics/public_packages/main/scripts/setup-apt.sh | bash -s
 
 # setup environment
 ENV LANG=C.UTF-8
@@ -104,7 +104,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     bpfcc-tools \
     bpftrace
 
-    # vulcanexus-${ROS_DISTRO}-core \
 
 RUN curl -L https://github.com/rr-debugger/rr/releases/download/5.9.0/rr-5.9.0-Linux-$(uname -m).deb --output rr.deb && dpkg --install rr.deb && rm rr.deb
 
@@ -136,14 +135,14 @@ RUN curl -sL https://deb.nodesource.com/setup_22.x | bash -
 # install yarn and pyright
 RUN apt-get install -y nodejs && npm install --global yarn pyright
 
-RUN pip install pre-commit
+RUN pip install pre-commit lark-parser
 
 # Install Greenroom fork of bloom
 RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/gr.zip
 
 # Install Greenroom's rosdep fork which allows installation from URLs, version pinning and downgrades
 RUN apt-get remove python3-rosdep -y
-RUN pip install -U https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/greenroom.zip
+RUN pip install -U https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/russwebber/sc-16383/upgrade-to-ros-2-kilted.zip
 
 # Move default home dir and update base user to ros.
 RUN usermod --move-home --home /home/ros --login ros ${BASE_USER} && \
@@ -151,29 +150,16 @@ RUN usermod --move-home --home /home/ros --login ros ${BASE_USER} && \
     passwd -d ros && \
     groupmod --new-name ros ${BASE_USER}
 
-# Build external source packages
-WORKDIR /home/ros
-
-# TODO move external repos to packages
-COPY ./external.repos ./external.repos
-RUN mkdir external
-RUN vcs import external < ./external.repos
-RUN apt-get update && rosdep update && rosdep install -y -i --from-paths external
-RUN pip install lark-parser
-
-RUN mkdir /opt/ros/${ROS_DISTRO}-ext && sudo chown -R ros:ros /opt/ros/${ROS_DISTRO}-ext
-
-RUN source /opt/ros/${ROS_DISTRO}/setup.sh && colcon build --base-paths external --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF
-
-RUN --mount=type=bind,source=scripts,target=scripts \
-  source /opt/ros/${ROS_DISTRO}-ext/setup.sh && python3 scripts/rosidl_generate_inplace.py
-
-ENV ROS_OVERLAY=/opt/ros/${ROS_DISTRO}-ext
 WORKDIR /home/ros
 ENV PATH="/home/ros/.local/bin:${PATH}"
+ENV ROS_OVERLAY=/opt/ros/${ROS_DISTRO}
 
-# Install greenroom public packages
-RUN curl -s https://raw.githubusercontent.com/Greenroom-Robotics/public_packages/main/scripts/setup-apt.sh | bash -s
+# RUN apt-get update && apt-get install -y \
+#     ros-${ROS_DISTRO}-rosidl-generator-mypy && \
+#     rm -rf /var/lib/apt/lists/*
+
+# RUN --mount=type=bind,source=scripts,target=scripts \
+#   source ${ROS_OVERLAY}/setup.sh && python3 scripts/rosidl_generate_inplace.py
 
 # Enable caching of apt packages: https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#example-cache-apt-packages
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
