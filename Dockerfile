@@ -3,6 +3,7 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
 ARG ROS_DISTRO
+ARG BASE_IMAGE_USER
 
 LABEL org.opencontainers.image.source=https://github.com/Greenroom-Robotics/ros_builder
 SHELL ["/bin/bash", "-c"]
@@ -123,10 +124,11 @@ RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/g
 RUN apt-get remove python3-rosdep -y
 RUN pip install -U https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/greenroom.zip
 
-RUN usermod --move-home --home /home/ros --login ros ubuntu && \
+RUN usermod --move-home --home /home/ros --login ros ${BASE_IMAGE_USER} && \
     usermod -a -G audio,video,sudo,plugdev,dialout ros && \
     passwd -d ros && \
-    groupmod --new-name ros ubuntu
+    groupmod --new-name ros ${BASE_IMAGE_USER} && \
+    rm -rf /home/ubuntu
 
 # Build external source packages
 WORKDIR /home/ros
