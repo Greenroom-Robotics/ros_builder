@@ -124,11 +124,11 @@ RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/g
 RUN apt-get remove python3-rosdep -y
 RUN pip install -U https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/greenroom.zip
 
-RUN usermod --move-home --home /home/ros --login ros ${BASE_IMAGE_USER} && \
+# Move default ubuntu dir and update base user to ros.
+RUN usermod --move-home --home /home/ros --login ros ubuntu && \
     usermod -a -G audio,video,sudo,plugdev,dialout ros && \
     passwd -d ros && \
-    groupmod --new-name ros ${BASE_IMAGE_USER} && \
-    rm -rf /home/ubuntu
+    groupmod --new-name ros ${BASE_IMAGE_USER}
 
 # Build external source packages
 WORKDIR /home/ros
@@ -157,6 +157,7 @@ RUN curl -s https://raw.githubusercontent.com/Greenroom-Robotics/public_packages
 # Enable caching of apt packages: https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#example-cache-apt-packages
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 
+RUN chown ros:ros /home/ros
 USER ros
 
 # Make sure we own the venv directory if it exists
