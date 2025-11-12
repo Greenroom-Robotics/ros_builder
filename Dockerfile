@@ -6,6 +6,7 @@ ARG ROS_DISTRO
 ARG BASE_IMAGE_USER
 
 LABEL org.opencontainers.image.source=https://github.com/Greenroom-Robotics/ros_builder
+LABEL description="Base ROS Builder image used for various Greenroom projects"
 SHELL ["/bin/bash", "-c"]
 
 ENV ROS_DISTRO="${ROS_DISTRO}"

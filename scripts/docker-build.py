@@ -135,7 +135,7 @@ def main():
 
     # Build GPU ros builder image.
     if not args.no_gpu:
-        # Build custom DeepStream base image, prebuilt NVCR deepstream images are very large.
+        # Build custom DeepStream base image (prebuilt nvcr.io deepstream images are larger).
         deepstream_base_tag = f"ghcr.io/greenroom-robotics/deepstream:{DEEPSTREAM_VERSION}"
         build_deepstream_image(
             arch=args.arch,

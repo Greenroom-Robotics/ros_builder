@@ -6,10 +6,9 @@ LABEL description="DeepStream 8.0 base image with minimal dependencies for ROS B
 
 SHELL ["/bin/bash", "-c"]
 
-# Non-interactive
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
-# Install prerequisite packages (runtime only, no -dev or build tools)
+# Install Deepstream prerequisite packages
 RUN apt-get update && apt-get upgrade -y && \
     apt-get install -y \
     libssl3 \
@@ -25,7 +24,7 @@ RUN apt-get update && apt-get upgrade -y && \
     python3 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install TensorRT runtime libraries only (no -dev packages)
+# Install TensorRT runtime libraries
 ENV TRT_VERSION="10.9.0.34-1+cuda12.8"
 RUN apt-get update && \
     apt-get install -y \
