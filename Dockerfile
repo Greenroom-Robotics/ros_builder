@@ -24,6 +24,12 @@ RUN echo 'Etc/UTC' > /etc/timezone && \
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
   echo 'wireshark-common wireshark-common/install-setuid boolean true' | debconf-set-selections
 
+# Upgrade packages if base images is old.
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install packages
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
     less \
