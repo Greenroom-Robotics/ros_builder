@@ -3,8 +3,10 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
 ARG ROS_DISTRO
+ARG BASE_USER
 
 LABEL org.opencontainers.image.source=https://github.com/Greenroom-Robotics/ros_builder
+LABEL description="Base ROS Builder image used for various Greenroom projects"
 SHELL ["/bin/bash", "-c"]
 
 ENV ROS_DISTRO="${ROS_DISTRO}"
@@ -22,8 +24,14 @@ RUN echo 'Etc/UTC' > /etc/timezone && \
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
   echo 'wireshark-common wireshark-common/install-setuid boolean true' | debconf-set-selections
 
-# install packages
-RUN apt-get update && apt-get dist-upgrade -q -y && apt-get install -q -y --no-install-recommends \
+# Upgrade packages if base images is old.
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install packages
+RUN apt-get update && apt-get install -q -y --no-install-recommends \
     less \
     iproute2 \
     dirmngr \
@@ -123,10 +131,11 @@ RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/g
 RUN apt-get remove python3-rosdep -y
 RUN pip install -U https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/greenroom.zip
 
-RUN usermod --move-home --home /home/ros --login ros ubuntu && \
+# Move default home dir and update base user to ros.
+RUN usermod --move-home --home /home/ros --login ros ${BASE_USER} && \
     usermod -a -G audio,video,sudo,plugdev,dialout ros && \
     passwd -d ros && \
-    groupmod --new-name ros ubuntu
+    groupmod --new-name ros ${BASE_USER}
 
 # Build external source packages
 WORKDIR /home/ros
@@ -155,6 +164,7 @@ RUN curl -s https://raw.githubusercontent.com/Greenroom-Robotics/public_packages
 # Enable caching of apt packages: https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#example-cache-apt-packages
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 
+RUN chown ros:ros /home/ros
 USER ros
 
 # Make sure we own the venv directory if it exists
