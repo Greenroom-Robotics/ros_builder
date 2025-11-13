@@ -54,7 +54,7 @@ def main():
         action="store_true",
         help="Skip building GPU based images (containing deepstream/tensorrt/CUDA)",
     )
-    parser.add_argument("--push", default=False, type=bool, help="Push the images to the registry")
+    parser.add_argument("--push", action="store_true", help="Push the images to the registry")
     parser.add_argument(
         "--no-cache",
         required=False,
