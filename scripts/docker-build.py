@@ -68,7 +68,6 @@ def main():
         build_args={
             "BASE_IMAGE": f"ubuntu:{UBUNTU_CODENAME}",
             "BASE_USER": "ubuntu",
-            "GPU": "false",
             "ROS_DISTRO": args.ros_distro,
         },
         arch=args.arch,
@@ -86,7 +85,6 @@ def main():
             build_args={
                 "BASE_IMAGE": f"nvcr.io/nvidia/deepstream:{DEEPSTREAM_VERSION}-triton-multiarch",
                 "BASE_USER": "triton-server",
-                "GPU": "true",
                 "ROS_DISTRO": args.ros_distro,
             },
             arch=args.arch,

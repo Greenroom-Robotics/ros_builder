@@ -4,7 +4,6 @@ FROM ${BASE_IMAGE}
 
 ARG ROS_DISTRO
 ARG BASE_USER
-ARG GPU=true
 
 LABEL org.opencontainers.image.source=https://github.com/Greenroom-Robotics/ros_builder
 LABEL description="Base ROS Builder image used for various Greenroom projects"
@@ -25,13 +24,8 @@ RUN echo 'Etc/UTC' > /etc/timezone && \
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
   echo 'wireshark-common wireshark-common/install-setuid boolean true' | debconf-set-selections
 
-# Pin Nvidia packages on GPU base so they are not upgraded by dist-upgrade 
-RUN if [ "$GPU" = "true" ]; then \
-      dpkg --get-selections | grep -E 'cuda|libcuda|libnv|libcublas|libcudnn|libnccl|tensorrt|deepstream' | awk '{print $1}' | xargs apt-mark hold; \
-    fi
-
-# Dist upgrade and install packages
-RUN apt-get update && apt-get dist-upgrade -q -y && apt-get install -q -y --no-install-recommends \
+# Install packages
+RUN apt-get update && apt-get install -q -y --no-install-recommends \
     less \
     iproute2 \
     dirmngr \
