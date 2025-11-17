@@ -57,8 +57,13 @@ ENV LC_ALL=C.UTF-8
 RUN if [ "$GPU" = "true" ]; then \
     cd /opt/nvidia/deepstream/deepstream-8.0/; \
     ./install.sh; \
+    # Install missing codecs required by opencv.
     ./user_additional_install.sh; \
+    # Delete line that activates venv, so pyds installs globally.
+    sed -i '/^source \.\/pyds\/bin\/activate/d' ./user_deepstream_python_apps_install.sh; \
+    # Install pyds.
     ./user_deepstream_python_apps_install.sh -v 1.2.2; \
+    rm -rf /opt/nvidia/deepstream/deepstream-8.0/sources/deepstream_python_apps; \
 fi
 
 # install bootstrap tools and ros2 packages
