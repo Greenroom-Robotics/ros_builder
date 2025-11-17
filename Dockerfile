@@ -58,8 +58,7 @@ RUN if [ "$GPU" = "true" ]; then \
     cd /opt/nvidia/deepstream/deepstream-8.0/; \
     ./install.sh; \
     ./user_additional_install.sh; \
-    ./user_deepstream_python_apps_install.sh -b; \
-    pip3 install ./sources/deepstream_python_apps/bindings/dist/pyds-*.whl; \
+    ./user_deepstream_python_apps_install.sh -v 1.2.2; \
 fi
 
 # install bootstrap tools and ros2 packages
