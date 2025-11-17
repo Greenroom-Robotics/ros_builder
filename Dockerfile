@@ -4,6 +4,7 @@ FROM ${BASE_IMAGE}
 
 ARG ROS_DISTRO
 ARG BASE_USER
+ARG GPU
 
 LABEL org.opencontainers.image.source=https://github.com/Greenroom-Robotics/ros_builder
 LABEL description="Base ROS Builder image used for various Greenroom projects"
@@ -51,6 +52,15 @@ RUN ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastruc
 # setup environment
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
+
+# Install additional dependencies for deepstream/GPU image
+RUN if [ "$GPU" = "true" ]; then \
+    cd /opt/nvidia/deepstream/deepstream-8.0/; \
+    ./install.sh; \
+    ./user_additional_install.sh; \
+    ./user_deepstream_python_apps_install.sh -b; \
+    pip3 install ./sources/deepstream_python_apps/bindings/dist/pyds-1.2.2-cp312-cp312-linux_x86_64.whl; \
+fi
 
 # install bootstrap tools and ros2 packages
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
