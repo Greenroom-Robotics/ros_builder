@@ -53,7 +53,7 @@ RUN ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastruc
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 
-# Install some additional dependencies for deepstream/GPU image
+# Install additional dependencies for deepstream/GPU image
 RUN if [ "$GPU" = "true" ]; then \
     cd /opt/nvidia/deepstream/deepstream-8.0/; \
     ./install.sh; \
