@@ -59,7 +59,7 @@ RUN if [ "$GPU" = "true" ]; then \
     ./install.sh; \
     ./user_additional_install.sh; \
     ./user_deepstream_python_apps_install.sh -b; \
-    pip3 install ./sources/deepstream_python_apps/bindings/dist/pyds-1.2.2-cp312-cp312-linux_x86_64.whl; \
+    pip3 install ./sources/deepstream_python_apps/bindings/dist/pyds-*.whl; \
 fi
 
 # install bootstrap tools and ros2 packages
