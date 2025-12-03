@@ -62,12 +62,10 @@ jobs:
           echo Published ${{ needs.release.outputs.published }}
           echo Version ${{ needs.release.outputs.version }}
 
-
           docker manifest create ghcr.io/greenroom-robotics/ros_builder:kilted-latest \
             ghcr.io/greenroom-robotics/ros_builder:kilted-latest-amd64 \
             ghcr.io/greenroom-robotics/ros_builder:kilted-latest-arm64
           docker manifest create ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }} \
-
             ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}-amd64 \
             ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}-arm64
 

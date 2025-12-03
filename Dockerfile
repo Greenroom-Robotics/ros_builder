@@ -155,12 +155,12 @@ WORKDIR /home/ros
 ENV PATH="/home/ros/.local/bin:${PATH}"
 ENV ROS_OVERLAY=/opt/ros/${ROS_DISTRO}
 
-# RUN apt-get update && apt-get install -y \
-#     ros-${ROS_DISTRO}-rosidl-generator-mypy && \
-#     rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    ros-${ROS_DISTRO}-rosidl-generator-mypy && \
+    rm -rf /var/lib/apt/lists/*
 
-# RUN --mount=type=bind,source=scripts,target=scripts \
-#   source ${ROS_OVERLAY}/setup.sh && python3 scripts/rosidl_generate_inplace.py
+RUN --mount=type=bind,source=scripts,target=scripts \
+  source ${ROS_OVERLAY}/setup.sh && python3 scripts/rosidl_generate_inplace.py
 
 # Enable caching of apt packages: https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#example-cache-apt-packages
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
