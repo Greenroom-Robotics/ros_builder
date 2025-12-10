@@ -1,6 +1,20 @@
 ARG BASE_IMAGE
+ARG FLATTEN=false
 
-FROM ${BASE_IMAGE}
+# Conditional base image flattening to reduce layer count
+FROM ${BASE_IMAGE} AS base-raw
+
+# Flatten the base image if FLATTEN=true
+FROM scratch AS base-flattened
+COPY --from=base-raw / /
+
+# Use flattened base for FLATTEN=true, raw base for FLATTEN=false
+FROM base-raw AS base-false
+FROM base-flattened AS base-true
+FROM base-${FLATTEN} AS base
+
+# Continue with the actual build
+FROM base
 
 ARG ROS_DISTRO
 ARG BASE_USER

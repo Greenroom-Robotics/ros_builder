@@ -88,6 +88,7 @@ def main():
                 "BASE_USER": "triton-server",
                 "ROS_DISTRO": args.ros_distro,
                 "GPU": "true",
+                "FLATTEN": "true", # This image has 166 layers, flatten to reduce layer count
             },
             arch=args.arch,
             tags=[
