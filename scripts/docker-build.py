@@ -5,6 +5,7 @@ import subprocess
 
 UBUNTU_CODENAME = "noble"
 DEEPSTREAM_VERSION = "8.0"
+GHCR_REGISTRY = "ghcr.io/greenroom-robotics"
 
 
 def build_image(
@@ -63,6 +64,31 @@ def main():
     )
     args = parser.parse_args()
 
+    if not args.no_gpu:
+        print("Building ROS Builder base image for GPU")
+
+        # Use pre-squashed DeepStream image from ghcr.io (multi-arch manifest)
+        # This must be created first via the squash-deepstream workflow
+        # Otherwise, the deepstream image has ~160 layers which causes issues in dependent builds
+        squashed_base = f"{GHCR_REGISTRY}/deepstream-squashed:{DEEPSTREAM_VERSION}-triton-multiarch"
+
+        build_image(
+            build_args={
+                "BASE_IMAGE": squashed_base,
+                "BASE_USER": "triton-server",
+                "ROS_DISTRO": args.ros_distro,
+                "GPU": "true",
+            },
+            arch=args.arch,
+            tags=[
+                f"{GHCR_REGISTRY}/ros_builder:{args.ros_distro}-{args.version}-deepstream-{DEEPSTREAM_VERSION}-{args.arch}",
+                f"{GHCR_REGISTRY}/ros_builder:{args.ros_distro}-latest-deepstream-{DEEPSTREAM_VERSION}-{args.arch}",
+            ],
+            push=args.push,
+            no_cache=args.no_cache,
+        )
+
+
     print("Building ROS Builder base image for CPU")
     build_image(
         build_args={
@@ -73,31 +99,12 @@ def main():
         },
         arch=args.arch,
         tags=[
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-{args.arch}",
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-{args.arch}",
+            f"{GHCR_REGISTRY}/ros_builder:{args.ros_distro}-{args.version}-{args.arch}",
+            f"{GHCR_REGISTRY}/ros_builder:{args.ros_distro}-latest-{args.arch}",
         ],
         push=args.push,
         no_cache=args.no_cache,
     )
-
-    if not args.no_gpu:
-        print("Building ROS Builder base image for GPU")
-        build_image(
-            build_args={
-                "BASE_IMAGE": f"nvcr.io/nvidia/deepstream:{DEEPSTREAM_VERSION}-triton-multiarch",
-                "BASE_USER": "triton-server",
-                "ROS_DISTRO": args.ros_distro,
-                "GPU": "true",
-            },
-            arch=args.arch,
-            tags=[
-                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-deepstream-{DEEPSTREAM_VERSION}-{args.arch}",
-                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-deepstream-{DEEPSTREAM_VERSION}-{args.arch}",
-            ],
-            push=args.push,
-            no_cache=args.no_cache,
-        )
-
 
 if __name__ == "__main__":
     main()

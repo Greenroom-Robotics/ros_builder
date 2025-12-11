@@ -1,0 +1,57 @@
+name: Squash DeepStream Base Image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  squash:
+    strategy:
+      matrix:
+        job:
+          ## AMD has issues because the image is > 10GB?
+          # - runner: 4vcpu-ubuntu-2404
+          #   arch: amd64
+          - runner: 4vcpu-ubuntu-2404-arm
+            arch: arm64
+
+    name: Squash DeepStream - ${{ matrix.job.arch }}
+    runs-on: ${{ matrix.job.runner }}
+
+    steps:
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.API_TOKEN_GITHUB }}
+
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Squash and push DeepStream image
+        run: ./scripts/squash-deepstream.sh 8.0 ${{ matrix.job.arch }}
+
+  # create-manifest:
+  #   name: Create Multi-Arch Manifest
+  #   runs-on: 2vcpu-ubuntu-2404
+  #   needs: squash
+
+  #   steps:
+  #     - name: Login to GitHub Container Registry
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.API_TOKEN_GITHUB }}
+
+  #     - uses: actions/checkout@v4
+
+  #     - name: Create and push manifest
+  #       run: ./scripts/create-manifest.sh 8.0
