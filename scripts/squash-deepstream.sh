@@ -32,20 +32,18 @@ docker cp "${SCRIPT_DIR}/cleanup-deepstream-contents.sh" ${CONTAINER_ID}:/tmp/cl
 echo "Running cleanup script..."
 docker exec ${CONTAINER_ID} bash /tmp/cleanup-deepstream-contents.sh
 
-echo "Committing cleaned container to temporary image..."
-docker commit ${CONTAINER_ID} ${TEMP_IMAGE}
+echo "Committing cleaned container to final image..."
+docker commit ${CONTAINER_ID} ${OUTPUT_TAG}
 
 echo "Stopping and removing temporary container..."
 docker stop ${CONTAINER_ID}
 docker rm ${CONTAINER_ID}
 
-echo "Squashing cleaned image..."
-docker-squash -t ${OUTPUT_TAG} ${TEMP_IMAGE}
+echo "Inspecting cleaned image layers..."
+CLEANED_LAYER_COUNT=$(docker inspect ${OUTPUT_TAG} | jq '.[0].RootFS.Layers | length')
+echo "Cleaned image has ${CLEANED_LAYER_COUNT} layers (original: ${LAYER_COUNT})"
 
-echo "Removing temporary image..."
-docker rmi ${TEMP_IMAGE}
-
-echo "Pushing squashed image to registry: ${OUTPUT_TAG}"
+echo "Pushing cleaned image to registry: ${OUTPUT_TAG}"
 docker push ${OUTPUT_TAG}
 
-echo "Successfully cleaned, squashed and pushed ${OUTPUT_TAG}"
+echo "Successfully cleaned and pushed ${OUTPUT_TAG}"
