@@ -10,8 +10,10 @@ jobs:
         job:
           - runner: 4vcpu-ubuntu-2404
             arch: amd64
+            squash: ""
           - runner: 4vcpu-ubuntu-2404-arm
             arch: arm64
+            squash: "squash"
 
     name: Squash DeepStream - ${{ matrix.job.arch }}
     runs-on: ${{ matrix.job.runner }}
@@ -35,7 +37,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Squash and push DeepStream image
-        run: ./scripts/squash-deepstream.sh 8.0 ${{ matrix.job.arch }}
+        run: ./scripts/squash-deepstream.sh 8.0 ${{ matrix.job.arch }} ${{ matrix.job.squash }}
 
   create-manifest:
     name: Create Multi-Arch Manifest
