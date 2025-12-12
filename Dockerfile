@@ -14,43 +14,32 @@ ENV ROS_DISTRO="${ROS_DISTRO}"
 ENV ROS_PYTHON_VERSION=3
 ENV RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 
-# setup timezone
+# setup timezone, debconf, upgrade packages and install basic tools
 RUN echo 'Etc/UTC' > /etc/timezone && \
     ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
+    echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
+    echo 'wireshark-common wireshark-common/install-setuid boolean true' | debconf-set-selections && \
     apt-get update && \
     apt-get install -q -y --no-install-recommends tzdata && \
-    rm -rf /var/lib/apt/lists/*
-
-# setup debconf for non-interactive install
-RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
-  echo 'wireshark-common wireshark-common/install-setuid boolean true' | debconf-set-selections
-
-# Upgrade packages if base images is old.
-RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get clean && \
+    apt-get install -q -y --no-install-recommends \
+        less \
+        sudo \
+        iproute2 \
+        dirmngr \
+        gnupg2 \
+        curl \
+        wget \
+        git \
+        ca-certificates \
+    && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install packages
-RUN apt-get update && apt-get install -q -y --no-install-recommends \
-    less \
-    sudo \
-    iproute2 \
-    dirmngr \
-    gnupg2 \
-    curl \
-    wget \
-    git \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-
-# setup ros2 apt sources
+# setup ros2 apt sources and install greenroom public packages
 RUN ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}') \
   && curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $VERSION_CODENAME)_all.deb" && \
-  apt install /tmp/ros2-apt-source.deb
-
-# Install greenroom public packages
-RUN curl -s https://raw.githubusercontent.com/Greenroom-Robotics/public_packages/main/scripts/setup-apt.sh | bash -s
+  apt install /tmp/ros2-apt-source.deb && \
+  curl -s https://raw.githubusercontent.com/Greenroom-Robotics/public_packages/main/scripts/setup-apt.sh | bash -s
 
 # setup environment
 ENV LANG=C.UTF-8
@@ -69,7 +58,7 @@ RUN if [ "$GPU" = "true" ]; then \
     rm -rf /opt/nvidia/deepstream/deepstream-8.0/sources/deepstream_python_apps; \
 fi
 
-# install bootstrap tools and ros2 packages
+# install bootstrap tools, configure system, setup ROS environment, and configure user
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
@@ -103,74 +92,63 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     ros-${ROS_DISTRO}-geographic-msgs \
     ros-${ROS_DISTRO}-example-interfaces \
     bpfcc-tools \
-    bpftrace
-
-
-RUN curl -L https://github.com/rr-debugger/rr/releases/download/5.9.0/rr-5.9.0-Linux-$(uname -m).deb --output rr.deb && dpkg --install rr.deb && rm rr.deb
-
-# set gcc version to latest available on ubuntu rel
-RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14 && \
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14 && \
-    update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-14 14 && \
-    update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-14 14 && \
-    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-14 14
-
-# Remove EXTERNALLY-MANAGED so we don't need to add --break-system-packages to pip
-RUN sudo rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED
-
-# bootstrap rosdep
-RUN rosdep init && \
-  rosdep update --rosdistro $ROS_DISTRO
-
-# setup colcon mixin and metadata
-RUN colcon mixin add default \
-      https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml && \
-    colcon mixin update && \
-    colcon metadata add default \
-      https://raw.githubusercontent.com/colcon/colcon-metadata-repository/master/index.yaml && \
-    colcon metadata update
-
-# install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_22.x | bash -
-
-# install yarn and pyright
-RUN apt-get install -y nodejs && npm install --global yarn pyright
-
-RUN pip install pre-commit lark-parser
-
-# Install Greenroom fork of bloom
-RUN pip install https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/gr.zip
-
-# Install Greenroom's rosdep fork which allows installation from URLs, version pinning and downgrades
-RUN apt-get remove python3-rosdep -y
-RUN pip install -U https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/russwebber/sc-16383/upgrade-to-ros-2-kilted.zip
-
-# Move default home dir and update base user to ros.
-RUN usermod --move-home --home /home/ros --login ros ${BASE_USER} && \
-    usermod -a -G audio,video,sudo,plugdev,dialout ros && \
-    passwd -d ros && \
-    groupmod --new-name ros ${BASE_USER}
+    bpftrace \
+    && curl -L https://github.com/rr-debugger/rr/releases/download/5.9.0/rr-5.9.0-Linux-$(uname -m).deb --output rr.deb \
+    && dpkg --install rr.deb \
+    && rm rr.deb \
+    # set gcc version to latest available on ubuntu rel
+    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14 \
+    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14 \
+    && update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-14 14 \
+    && update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-14 14 \
+    && update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-14 14 \
+    # Remove EXTERNALLY-MANAGED so we don't need to add --break-system-packages to pip
+    && sudo rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED \
+    # bootstrap rosdep
+    && rosdep init \
+    && rosdep update --rosdistro $ROS_DISTRO \
+    # setup colcon mixin and metadata
+    && colcon mixin add default \
+      https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml \
+    && colcon mixin update \
+    && colcon metadata add default \
+      https://raw.githubusercontent.com/colcon/colcon-metadata-repository/master/index.yaml \
+    && colcon metadata update \
+    # install nodejs
+    && curl -sL https://deb.nodesource.com/setup_22.x | bash - \
+    # install yarn and pyright
+    && apt-get install -y nodejs \
+    && npm install --global yarn pyright \
+    # Install Greenroom's rosdep fork which allows installation from URLs, version pinning and downgrades
+    && apt-get remove python3-rosdep -y \
+    # Install Greenroom fork of bloom
+    && pip install pre-commit lark-parser \
+        https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/gr.zip \
+        https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/russwebber/sc-16383/upgrade-to-ros-2-kilted.zip \
+    # Move default home dir and update base user to ros.
+    && usermod --move-home --home /home/ros --login ros ${BASE_USER} \
+    && usermod -a -G audio,video,sudo,plugdev,dialout ros \
+    && passwd -d ros \
+    && groupmod --new-name ros ${BASE_USER}
 
 WORKDIR /home/ros
 ENV PATH="/home/ros/.local/bin:${PATH}"
 ENV ROS_OVERLAY=/opt/ros/${ROS_DISTRO}
 
-RUN apt-get update && apt-get install -y \
-    ros-${ROS_DISTRO}-rosidl-generator-mypy && \
-    rm -rf /var/lib/apt/lists/*
-
+# Install additional ROS packages, run script generation, and final setup
 RUN --mount=type=bind,source=scripts,target=scripts \
-  source ${ROS_OVERLAY}/setup.sh && python3 scripts/rosidl_generate_inplace.py
+    apt-get update && apt-get install -y \
+        ros-${ROS_DISTRO}-rosidl-generator-mypy && \
+    rm -rf /var/lib/apt/lists/* && \
+    source ${ROS_OVERLAY}/setup.sh && python3 scripts/rosidl_generate_inplace.py && \
+    # Enable caching of apt packages: https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#example-cache-apt-packages \
+    rm -f /etc/apt/apt.conf.d/docker-clean && \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache && \
+    chown ros:ros /home/ros && \
+    # Make sure we own the venv directory if it exists (This is where packages are installed on l4t / jetson) \
+    if [ -d /opt/venv ]; then chown -R ros:ros /opt/venv; fi
 
-# Enable caching of apt packages: https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#example-cache-apt-packages
-RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
-
-RUN chown ros:ros /home/ros
 USER ros
-
-# Make sure we own the venv directory if it exists
-# This is where packages are installed on l4t / jetson
-RUN if [ -d /opt/venv ]; then sudo chown -R ros:ros /opt/venv; fi
 
 # Install poetry as ros user
 RUN pip install poetry poetry-plugin-export
