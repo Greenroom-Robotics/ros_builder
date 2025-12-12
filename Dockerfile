@@ -100,16 +100,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
     # vulcanexus-${ROS_DISTRO}-core \
 
-# set gcc version to latest available on ubuntu rel and remove python EXTERNALLY-MANAGED
+# configure system, bootstrap rosdep, setup colcon, install nodejs and python packages
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14 && \
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14 && \
     update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-14 14 && \
     update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-14 14 && \
     update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-14 14 && \
-    sudo rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED
-
-# bootstrap rosdep, setup colcon, install nodejs and python packages
-RUN rosdep init && \
+    # Remove EXTERNALLY-MANAGED so we don't need to add --break-system-packages to pip
+    sudo rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED && \
+    # bootstrap rosdep
+    rosdep init && \
     rosdep update --rosdistro $ROS_DISTRO && \
     # setup colcon mixin and metadata
     colcon mixin add default \
@@ -148,21 +148,20 @@ RUN mkdir external && \
     mkdir /opt/ros/${ROS_DISTRO}-ext && sudo chown -R ros:ros /opt/ros/${ROS_DISTRO}-ext && \
     source /opt/ros/${ROS_DISTRO}/setup.sh && colcon build --base-paths external --merge-install --install-base /opt/ros/${ROS_DISTRO}-ext --cmake-args -DBUILD_TESTING=OFF
 
+# Run script generation, install greenroom packages, enable apt caching, and set ownership
 RUN --mount=type=bind,source=scripts,target=scripts \
-  source /opt/ros/${ROS_DISTRO}-ext/setup.sh && python3 scripts/rosidl_generate_inplace.py
-
-ENV ROS_OVERLAY=/opt/ros/${ROS_DISTRO}-ext
-WORKDIR /home/ros
-ENV PATH="/home/ros/.local/bin:${PATH}"
-
-# Install greenroom public packages, enable apt caching, set ownership
-RUN curl -s https://raw.githubusercontent.com/Greenroom-Robotics/public_packages/main/scripts/setup-apt.sh | bash -s && \
+    source /opt/ros/${ROS_DISTRO}-ext/setup.sh && python3 scripts/rosidl_generate_inplace.py && \
+    curl -s https://raw.githubusercontent.com/Greenroom-Robotics/public_packages/main/scripts/setup-apt.sh | bash -s && \
     # Enable caching of apt packages: https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#example-cache-apt-packages
     rm -f /etc/apt/apt.conf.d/docker-clean && \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache && \
     chown ros:ros /home/ros && \
     # Make sure we own the venv directory if it exists (This is where packages are installed on l4t / jetson)
     if [ -d /opt/venv ]; then chown -R ros:ros /opt/venv; fi
+
+ENV ROS_OVERLAY=/opt/ros/${ROS_DISTRO}-ext
+WORKDIR /home/ros
+ENV PATH="/home/ros/.local/bin:${PATH}"
 
 USER ros
 
