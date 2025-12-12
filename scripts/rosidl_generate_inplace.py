@@ -4,7 +4,7 @@ from pathlib import Path
 import os
 
 interfaces_pkgs = ament_index_python.get_resources('rosidl_interfaces')
-# needs to be run from / for the file paths to be correct
+# needs to be run from / for the file paths to be correct.
 os.chdir("/")
 
 for pkg_name, pkg_prefix in interfaces_pkgs.items():
