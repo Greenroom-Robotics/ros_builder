@@ -66,11 +66,7 @@ def main():
 
     if not args.no_gpu:
         print("Building ROS Builder base image for GPU")
-
-        # Use pre-squashed DeepStream image from ghcr.io (multi-arch manifest)
-        # This must be created first via the squash-deepstream workflow
-        # Otherwise, the deepstream image has ~160 layers which causes issues in dependent builds
-        squashed_base = f"{GHCR_REGISTRY}/deepstream-squashed:{DEEPSTREAM_VERSION}-triton-multiarch"
+        squashed_base = f"nvcr.io/nvidia/deepstream:{DEEPSTREAM_VERSION}-triton-multiarch"
 
         build_image(
             build_args={
