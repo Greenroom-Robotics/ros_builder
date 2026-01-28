@@ -93,7 +93,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     bpftrace \
     && curl -L https://github.com/rr-debugger/rr/releases/download/5.9.0/rr-5.9.0-Linux-$(uname -m).deb --output rr.deb \
     && dpkg --install rr.deb \
-    && rm rr.deb
+    && rm rr.deb \
     # Remove EXTERNALLY-MANAGED so we don't need to add --break-system-packages to pip
     && sudo rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED \
     # bootstrap rosdep
