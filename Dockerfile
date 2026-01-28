@@ -64,7 +64,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     build-essential \
     gdb \
     cmake \
-    sccache \
     debhelper \
     dh-python \
     dpkg-dev \
