@@ -3,8 +3,8 @@
 import argparse
 import subprocess
 
-UBUNTU_CODENAME = "noble"
-DEEPSTREAM_VERSION = "8.0"
+UBUNTU_CODENAME = "jammy"
+DEEPSTREAM_VERSION = "7.1"
 
 
 def build_image(
