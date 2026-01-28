@@ -3,8 +3,8 @@
 import argparse
 import subprocess
 
-UBUNTU_CODENAME = "noble"
-DEEPSTREAM_VERSION = "8.0"
+UBUNTU_CODENAME = "jammy"
+DEEPSTREAM_VERSION = "7.1"
 
 
 def build_image(
@@ -67,7 +67,6 @@ def main():
     build_image(
         build_args={
             "BASE_IMAGE": f"ubuntu:{UBUNTU_CODENAME}",
-            "BASE_USER": "ubuntu",
             "ROS_DISTRO": args.ros_distro,
             "GPU": "false",
         },

@@ -17,6 +17,8 @@ ENV RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 # setup timezone, debconf, upgrade packages and install basic tools
 RUN echo 'Etc/UTC' > /etc/timezone && \
     ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
+    echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
+    echo 'wireshark-common wireshark-common/install-setuid boolean true' | debconf-set-selections && \
     apt-get update && \
     apt-get install -q -y --no-install-recommends tzdata && \
     apt-get upgrade -y && \
@@ -45,7 +47,7 @@ ENV LC_ALL=C.UTF-8
 
 # Install additional dependencies for deepstream/GPU image
 RUN if [ "$GPU" = "true" ]; then \
-    cd /opt/nvidia/deepstream/deepstream-8.0/; \
+    cd /opt/nvidia/deepstream/deepstream-7.1/; \
     ./install.sh; \
     # Install missing codecs required by opencv.
     ./user_additional_install.sh; \
@@ -53,18 +55,15 @@ RUN if [ "$GPU" = "true" ]; then \
     sed -i '/^source \.\/pyds\/bin\/activate/d' ./user_deepstream_python_apps_install.sh; \
     # Install pyds.
     ./user_deepstream_python_apps_install.sh -v 1.2.2; \
-    rm -rf /opt/nvidia/deepstream/deepstream-8.0/sources/deepstream_python_apps; \
+    rm -rf /opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps; \
 fi
 
 # install bootstrap tools, configure system, setup ROS environment, and configure user
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
-    gcc-14-base \
-    g++-14 \
     gdb \
     cmake \
-    sccache \
     debhelper \
     dh-python \
     dpkg-dev \
@@ -84,22 +83,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     python3-vcstool \
     clang-format \
     ros-${ROS_DISTRO}-rmw-fastrtps-cpp \
-    ros-${ROS_DISTRO}-rmw-zenoh-cpp \
     ros-${ROS_DISTRO}-ros-base \
     ros-${ROS_DISTRO}-ros-core \
     ros-${ROS_DISTRO}-geographic-msgs \
     ros-${ROS_DISTRO}-example-interfaces \
+    wget \
     bpfcc-tools \
     bpftrace \
     && curl -L https://github.com/rr-debugger/rr/releases/download/5.9.0/rr-5.9.0-Linux-$(uname -m).deb --output rr.deb \
     && dpkg --install rr.deb \
     && rm rr.deb \
-    # set gcc version to latest available on ubuntu rel
-    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14 \
-    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14 \
-    && update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-14 14 \
-    && update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-14 14 \
-    && update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-14 14 \
     # Remove EXTERNALLY-MANAGED so we don't need to add --break-system-packages to pip
     && sudo rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED \
     # bootstrap rosdep
@@ -122,12 +115,17 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     # Install Greenroom fork of bloom
     && pip install pre-commit lark-parser \
         https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/gr.zip \
-        https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/russwebber/sc-16383/upgrade-to-ros-2-kilted.zip \
-    # Move default home dir and update base user to ros.
-    && usermod --move-home --home /home/ros --login ros ${BASE_USER} \
+        https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/greenroom.zip \
+    # Move default home dir and update base user to ros, or create ros if no base user exists.
+    # Need this as there is no base user in ubuntu:jammy image
+    && if id "${BASE_USER}" &>/dev/null; then \
+         usermod --move-home --home /home/ros --login ros ${BASE_USER}; \
+         groupmod --new-name ros ${BASE_USER}; \
+       else \
+         useradd -m -d /home/ros -s /bin/bash ros; \
+       fi \
     && usermod -a -G audio,video,sudo,plugdev,dialout ros \
-    && passwd -d ros \
-    && groupmod --new-name ros ${BASE_USER}
+    && passwd -d ros
 
 WORKDIR /home/ros
 ENV PATH="/home/ros/.local/bin:${PATH}"
