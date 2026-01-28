@@ -116,11 +116,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && pip install pre-commit lark-parser \
         https://github.com/Greenroom-Robotics/bloom/archive/refs/heads/gr.zip \
         https://github.com/Greenroom-Robotics/rosdep/archive/refs/heads/greenroom.zip \
-    # Move default home dir and update base user to ros.
-    && usermod --move-home --home /home/ros --login ros ${BASE_USER} \
+    # Move default home dir and update base user to ros, or create ros if no base user exists.
+    # Need this as there is no base user in ubuntu:jammy image
+    && if id "${BASE_USER}" &>/dev/null; then \
+         usermod --move-home --home /home/ros --login ros ${BASE_USER}; \
+         groupmod --new-name ros ${BASE_USER}; \
+       else \
+         useradd -m -d /home/ros -s /bin/bash ros; \
+       fi \
     && usermod -a -G audio,video,sudo,plugdev,dialout ros \
-    && passwd -d ros \
-    && groupmod --new-name ros ${BASE_USER}
+    && passwd -d ros
 
 WORKDIR /home/ros
 ENV PATH="/home/ros/.local/bin:${PATH}"

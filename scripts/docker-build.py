@@ -67,7 +67,6 @@ def main():
     build_image(
         build_args={
             "BASE_IMAGE": f"ubuntu:{UBUNTU_CODENAME}",
-            "BASE_USER": "ubuntu",
             "ROS_DISTRO": args.ros_distro,
             "GPU": "false",
         },
