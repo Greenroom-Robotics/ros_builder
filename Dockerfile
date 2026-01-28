@@ -21,7 +21,7 @@ RUN echo 'Etc/UTC' > /etc/timezone && \
     echo 'wireshark-common wireshark-common/install-setuid boolean true' | debconf-set-selections && \
     apt-get update && \
     apt-get install -q -y --no-install-recommends tzdata && \
-    apt-get upgrade -y && \
+    if [ "$GPU" != "true" ]; then apt-get upgrade -y; fi && \
     apt-get install -q -y --no-install-recommends \
         less \
         sudo \

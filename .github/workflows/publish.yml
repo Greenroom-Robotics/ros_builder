@@ -10,7 +10,7 @@ jobs:
           job:
             - runner: 4vcpu-ubuntu-2404
               arch: amd64
-            - runner: 4vcpu-ubuntu-2404-arm
+            - runner: 8vcpu-ubuntu-2404-arm
               arch: arm64
 
     name: Release - ${{ matrix.job.arch }}
