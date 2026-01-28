@@ -1,88 +1,103 @@
-#!/bin/python3
+#!/usr/bin/env python3
 
 import argparse
 import subprocess
-from typing import List, Dict
+
+UBUNTU_CODENAME = "noble"
+DEEPSTREAM_VERSION = "8.0"
 
 
-UBUNTU_VERSION = "22.04"
-UBUNTU_CODENAME = "jammy"
-CUDA_VERSION = f"12.6.3-cudnn-devel-ubuntu{UBUNTU_VERSION}"
-JETSON_VERSION = "4.11.0-r36.4.0-cu128-24.04"
-
-ENV = Dict[str, str]
-
-
-def build_image(base_image: str, ros_distro: str, arch: str, tags: List[str], push: bool = False, env: ENV = {}):
-    print(
-        f"\033[92mBuilding image with base image {base_image} and tags {tags}\033[0m")
-
+def build_image(
+    arch: str,
+    tags: list[str],
+    push: bool = False,
+    no_cache: bool = False,
+    build_args: dict[str, str] = {},
+) -> None:
     command = [
         "docker buildx build",
         f"--platform linux/{arch}",
-        f'--build-arg BASE_IMAGE="{base_image}"',
-        f'--build-arg ROS_DISTRO="{ros_distro}"',
-        "--provenance=false",
-        " ".join([f"-t {tag}" for tag in tags]),
-        "--push" if push else "",
-        ".",
     ]
+
+    for key, value in build_args.items():
+        command.append(f'--build-arg {key}="{value}"')
+
+    command.extend(
+        [
+            "--provenance=false",
+            " ".join([f"-t {tag}" for tag in tags]),
+            "--no-cache" if no_cache else "",
+            "--push" if push else "",
+            ".",
+        ]
+    )
+
     command_str = " ".join(command)
-    result = subprocess.run(command_str, shell=True, env=env)
+    print(f"Docker build command: {command_str}")
+    result = subprocess.run(command_str, shell=True)
     if result.returncode != 0:
         raise Exception(f"Failed to build image with command {command_str}")
 
 
-if __name__ == "__main__":
-    # Parse args
+def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ros_distro', required=True,
-                        help="ROS2 distro to build (e.g. galactic, humble, etc.)")
-    parser.add_argument('--version', required=True,
-                        help="Version of the image (e.g. 1.0.0)")
-    parser.add_argument('--arch', required=True,
-                        help="architecture of the image (e.g. amd64, arm64, etc.)")
-    parser.add_argument('--no-cuda', required=False, action='store_true',
-                        help="skip building CUDA images")
-    parser.add_argument('--push', default=False, type=bool,
-                        help="Should we push the image to the registry?")
+    parser.add_argument(
+        "--ros_distro", required=True, help="ROS2 distro to build (e.g. galactic, humble, etc.)"
+    )
+    parser.add_argument("--version", required=True, help="Version of the image (e.g. 1.0.0)")
+    parser.add_argument(
+        "--arch", required=True, help="Architecture of the image (e.g. amd64, arm64, etc.)"
+    )
+    parser.add_argument(
+        "--no-gpu",
+        required=False,
+        action="store_true",
+        help="Skip building GPU based images (containing deepstream/tensorrt/CUDA)",
+    )
+    parser.add_argument("--push", action="store_true", help="Push the images to the registry")
+    parser.add_argument(
+        "--no-cache",
+        required=False,
+        action="store_true",
+        help="Build without using cache",
+    )
     args = parser.parse_args()
 
-    # Build images
-
-    if not args.no_cuda:
-        build_image(
-            base_image=f"nvidia/cuda:{CUDA_VERSION}",
-            ros_distro=args.ros_distro,
-            arch=args.arch,
-            tags=[
-                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-{args.arch}",
-                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-{args.arch}"
-            ],
-            push=args.push,
-        )
-    
-    # If we are builing for arm, also build a version for v8 to use on a Jetson
-    if args.arch == "arm64":
-        build_image(
-            base_image=f"dustynv/opencv:{JETSON_VERSION}",
-            ros_distro=args.ros_distro,
-            arch=args.arch,
-            tags=[
-                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-cuda-jetson-{args.arch}",
-                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-cuda-jetson-{args.arch}"
-            ],
-            push=args.push,
-        )
-        
+    print("Building ROS Builder base image for CPU")
     build_image(
-        base_image=f"ubuntu:{UBUNTU_CODENAME}",
-        ros_distro=args.ros_distro,
+        build_args={
+            "BASE_IMAGE": f"ubuntu:{UBUNTU_CODENAME}",
+            "BASE_USER": "ubuntu",
+            "ROS_DISTRO": args.ros_distro,
+            "GPU": "false",
+        },
         arch=args.arch,
         tags=[
             f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-{args.arch}",
-            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-{args.arch}"
+            f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-{args.arch}",
         ],
         push=args.push,
+        no_cache=args.no_cache,
     )
-    
+
+    if not args.no_gpu:
+        print("Building ROS Builder base image for GPU")
+        build_image(
+            build_args={
+                "BASE_IMAGE": f"nvcr.io/nvidia/deepstream:{DEEPSTREAM_VERSION}-triton-multiarch",
+                "BASE_USER": "triton-server",
+                "ROS_DISTRO": args.ros_distro,
+                "GPU": "true",
+            },
+            arch=args.arch,
+            tags=[
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-{args.version}-deepstream-{DEEPSTREAM_VERSION}-{args.arch}",
+                f"ghcr.io/greenroom-robotics/ros_builder:{args.ros_distro}-latest-deepstream-{DEEPSTREAM_VERSION}-{args.arch}",
+            ],
+            push=args.push,
+            no_cache=args.no_cache,
+        )
+
+
+if __name__ == "__main__":
+    main()

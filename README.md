@@ -30,4 +30,4 @@ Trigger the [publish.yml](./.github/workflows/publish.yml) github action
 *This will be fast(er) to build but slow to upload.*
 
 * `yarn version --patch|minor|major`
-* `python3 scripts/docker-build.py --version 1.0.0 --arch amd64 --ros_distro iron`
+* `python3 scripts/docker-build.py --version 1.0.0 --arch amd64 --ros_distro kilted`

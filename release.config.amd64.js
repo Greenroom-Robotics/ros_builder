@@ -15,8 +15,8 @@ module.exports = {
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "scripts/docker-build.py --version ${nextRelease.version} --arch amd64 --ros_distro iron",
-          "publishCmd": "scripts/docker-build.py --version ${nextRelease.version} --arch amd64 --ros_distro iron --push true"
+          "prepareCmd": "scripts/docker-build.py --version ${nextRelease.version} --arch amd64 --ros_distro kilted",
+          "publishCmd": "scripts/docker-build.py --version ${nextRelease.version} --arch amd64 --ros_distro kilted --push"
         }
       ],
       [
