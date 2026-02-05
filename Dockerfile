@@ -51,10 +51,8 @@ RUN if [ "$GPU" = "true" ]; then \
     ./install.sh; \
     # Install missing codecs required by opencv.
     ./user_additional_install.sh; \
-    # Delete line that activates venv, so pyds installs globally.
-    sed -i '/^source \.\/pyds\/bin\/activate/d' ./user_deepstream_python_apps_install.sh; \
     # Install pyds.
-    ./user_deepstream_python_apps_install.sh -v 1.2.2; \
+    ./user_deepstream_python_apps_install.sh -v 1.2.0; \
     rm -rf /opt/nvidia/deepstream/deepstream-7.1/sources/deepstream_python_apps; \
 fi
 
