@@ -3,7 +3,11 @@
 import argparse
 import subprocess
 
-UBUNTU_CODENAME = "noble"
+UBUNTU_CODENAME_BY_DISTRO = {
+    "kilted": "noble",  # 24.04
+    "lyrical": "resolute",  # 26.04
+}
+
 DEEPSTREAM_VERSION = "8.0"
 
 
@@ -41,9 +45,7 @@ def build_image(
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--ros_distro", required=True, help="ROS2 distro to build (e.g. galactic, humble, etc.)"
-    )
+    parser.add_argument("--ros_distro", required=True, help="ROS2 distro to build")
     parser.add_argument("--version", required=True, help="Version of the image (e.g. 1.0.0)")
     parser.add_argument(
         "--arch", required=True, help="Architecture of the image (e.g. amd64, arm64, etc.)"
@@ -63,10 +65,14 @@ def main():
     )
     args = parser.parse_args()
 
+    ubuntu_codename = UBUNTU_CODENAME_BY_DISTRO.get(args.ros_distro) or None
+    if ubuntu_codename is None:
+        raise SystemExit(f"No Ubuntu codename found for ROS distro {args.ros_distro}.")
+
     print("Building ROS Builder base image for CPU")
     build_image(
         build_args={
-            "BASE_IMAGE": f"ubuntu:{UBUNTU_CODENAME}",
+            "BASE_IMAGE": f"ubuntu:{ubuntu_codename}",
             "BASE_USER": "ubuntu",
             "ROS_DISTRO": args.ros_distro,
             "GPU": "false",

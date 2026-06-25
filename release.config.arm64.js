@@ -1,4 +1,9 @@
 
+const ROS_DISTRO = process.env.ROS_DISTRO || 'lyrical';
+// Deepstream only supports Ubuntu 24.04, so skip GPU images for distros without it.
+const DISTROS_WITHOUT_GPU = ['lyrical'];
+const NO_GPU = DISTROS_WITHOUT_GPU.includes(ROS_DISTRO) ? ' --no-gpu' : '';
+
 module.exports = {
   branches: ['3.x', 'main'],
   plugins:
@@ -14,8 +19,8 @@ module.exports = {
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "scripts/docker-build.py --version ${nextRelease.version} --arch arm64 --ros_distro kilted",
-          "publishCmd": "scripts/docker-build.py --version ${nextRelease.version} --arch arm64 --ros_distro kilted --push"
+          "prepareCmd": `scripts/docker-build.py --version \${nextRelease.version} --arch arm64 --ros_distro ${ROS_DISTRO}${NO_GPU}`,
+          "publishCmd": `scripts/docker-build.py --version \${nextRelease.version} --arch arm64 --ros_distro ${ROS_DISTRO} --push${NO_GPU}`
         }
       ]
     ],

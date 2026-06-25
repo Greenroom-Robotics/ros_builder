@@ -2,6 +2,15 @@ name: Tag & Release
 
 on:
   workflow_dispatch:
+    inputs:
+      ros_distro:
+        description: "ROS 2 distro to release"
+        required: true
+        type: choice
+        default: lyrical
+        options:
+          - lyrical
+          - kilted
 
 jobs:
   release:
@@ -40,6 +49,7 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
           GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
           GITHUB_USER: ${{ github.actor }}
+          ROS_DISTRO: ${{ inputs.ros_distro }}
         run: yarn run semantic-release --extends ./release.config.${{ matrix.job.arch }}.js --tag-format='${version}-${{ matrix.job.arch }}'
 
   create-manifest:
@@ -58,28 +68,34 @@ jobs:
       - name: Create Manifest
         shell: bash
         if: needs.release.outputs.published == 'true'
+        env:
+          DISTRO: ${{ inputs.ros_distro }}
+          VERSION: ${{ needs.release.outputs.version }}
         run: |
           echo Published ${{ needs.release.outputs.published }}
-          echo Version ${{ needs.release.outputs.version }}
+          echo Distro $DISTRO
+          echo Version $VERSION
 
-          docker manifest create ghcr.io/greenroom-robotics/ros_builder:kilted-latest \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-latest-amd64 \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-latest-arm64
-          docker manifest create ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }} \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}-amd64 \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}-arm64
+          docker manifest create ghcr.io/greenroom-robotics/ros_builder:$DISTRO-latest \
+            ghcr.io/greenroom-robotics/ros_builder:$DISTRO-latest-amd64 \
+            ghcr.io/greenroom-robotics/ros_builder:$DISTRO-latest-arm64
+          docker manifest create ghcr.io/greenroom-robotics/ros_builder:$DISTRO-$VERSION \
+            ghcr.io/greenroom-robotics/ros_builder:$DISTRO-$VERSION-amd64 \
+            ghcr.io/greenroom-robotics/ros_builder:$DISTRO-$VERSION-arm64
 
-          docker manifest create ghcr.io/greenroom-robotics/ros_builder:kilted-latest-deepstream-8.0 \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-latest-deepstream-8.0-amd64 \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-latest-deepstream-8.0-arm64
+          docker manifest push ghcr.io/greenroom-robotics/ros_builder:$DISTRO-latest
+          docker manifest push ghcr.io/greenroom-robotics/ros_builder:$DISTRO-$VERSION
 
-          docker manifest create ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}-deepstream-8.0 \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}-deepstream-8.0-amd64 \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}-deepstream-8.0-arm64
+          # lyrical doesn't have a GPU image
+          if [ "$DISTRO" != "lyrical" ]; then
+            docker manifest create ghcr.io/greenroom-robotics/ros_builder:$DISTRO-latest-deepstream-8.0 \
+              ghcr.io/greenroom-robotics/ros_builder:$DISTRO-latest-deepstream-8.0-amd64 \
+              ghcr.io/greenroom-robotics/ros_builder:$DISTRO-latest-deepstream-8.0-arm64
 
+            docker manifest create ghcr.io/greenroom-robotics/ros_builder:$DISTRO-$VERSION-deepstream-8.0 \
+              ghcr.io/greenroom-robotics/ros_builder:$DISTRO-$VERSION-deepstream-8.0-amd64 \
+              ghcr.io/greenroom-robotics/ros_builder:$DISTRO-$VERSION-deepstream-8.0-arm64
 
-          docker manifest push ghcr.io/greenroom-robotics/ros_builder:kilted-latest
-          docker manifest push ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}
-
-          docker manifest push ghcr.io/greenroom-robotics/ros_builder:kilted-latest-deepstream-8.0
-          docker manifest push ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}-deepstream-8.0
+            docker manifest push ghcr.io/greenroom-robotics/ros_builder:$DISTRO-latest-deepstream-8.0
+            docker manifest push ghcr.io/greenroom-robotics/ros_builder:$DISTRO-$VERSION-deepstream-8.0
+          fi
