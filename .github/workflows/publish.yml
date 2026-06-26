@@ -5,34 +5,21 @@ on:
 
 jobs:
   release:
-    name: Create Release
-    runs-on: 2vcpu-ubuntu-2404
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+          - runner: 4vcpu-ubuntu-2404
+            arch: amd64
+          - runner: 4vcpu-ubuntu-2404-arm
+            arch: arm64
+
+    name: Release - ${{ matrix.job.arch }}
+    runs-on: ${{ matrix.job.runner }}
+
     outputs:
       published: ${{ steps.release.outputs.published }}
       version: ${{ steps.release.outputs.version }}
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-
-      - name: Install npm dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Release
-        id: release
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
-          GITHUB_USER: ${{ github.actor }}
-        run: yarn run semantic-release
-
-  build-images:
-    name: Build image - ${{ matrix.job.arch }}
-    runs-on: ${{ matrix.job.runner }}
-    needs: release
-    if: needs.release.outputs.published == 'true'
 
     steps:
       - name: Set up Docker Buildx
@@ -54,13 +41,12 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
           GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
           GITHUB_USER: ${{ github.actor }}
-        run: yarn run semantic-release
+        run: yarn run semantic-release --extends ./release.config.${{ matrix.job.arch }}.js --tag-format='${version}-${{ matrix.job.arch }}'
 
   create-manifest:
     name: Create Multi-Arch Manifest
     runs-on: 2vcpu-ubuntu-2404
-    needs: [release, build-images]
-    if: needs.release.outputs.published == 'true'
+    needs: release
 
     steps:
       - name: Login to GitHub Container Registry
