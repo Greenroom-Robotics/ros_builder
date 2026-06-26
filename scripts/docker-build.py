@@ -3,7 +3,7 @@
 import argparse
 import subprocess
 
-UBUNTU_CODENAME = "noble"
+UBUNTU_CODENAME = "resolute"
 DEEPSTREAM_VERSION = "8.0"
 
 

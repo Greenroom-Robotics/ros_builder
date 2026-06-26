@@ -62,24 +62,24 @@ jobs:
           echo Published ${{ needs.release.outputs.published }}
           echo Version ${{ needs.release.outputs.version }}
 
-          docker manifest create ghcr.io/greenroom-robotics/ros_builder:kilted-latest \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-latest-amd64 \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-latest-arm64
-          docker manifest create ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }} \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}-amd64 \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}-arm64
+          docker manifest create ghcr.io/greenroom-robotics/ros_builder:lyrical-latest \
+            ghcr.io/greenroom-robotics/ros_builder:lyrical-latest-amd64 \
+            ghcr.io/greenroom-robotics/ros_builder:lyrical-latest-arm64
+          docker manifest create ghcr.io/greenroom-robotics/ros_builder:lyrical-${{ needs.release.outputs.version }} \
+            ghcr.io/greenroom-robotics/ros_builder:lyrical-${{ needs.release.outputs.version }}-amd64 \
+            ghcr.io/greenroom-robotics/ros_builder:lyrical-${{ needs.release.outputs.version }}-arm64
 
-          docker manifest create ghcr.io/greenroom-robotics/ros_builder:kilted-latest-deepstream-8.0 \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-latest-deepstream-8.0-amd64 \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-latest-deepstream-8.0-arm64
+          docker manifest create ghcr.io/greenroom-robotics/ros_builder:lyrical-latest-deepstream-8.0 \
+            ghcr.io/greenroom-robotics/ros_builder:lyrical-latest-deepstream-8.0-amd64 \
+            ghcr.io/greenroom-robotics/ros_builder:lyrical-latest-deepstream-8.0-arm64
 
-          docker manifest create ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}-deepstream-8.0 \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}-deepstream-8.0-amd64 \
-            ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}-deepstream-8.0-arm64
+          docker manifest create ghcr.io/greenroom-robotics/ros_builder:lyrical-${{ needs.release.outputs.version }}-deepstream-8.0 \
+            ghcr.io/greenroom-robotics/ros_builder:lyrical-${{ needs.release.outputs.version }}-deepstream-8.0-amd64 \
+            ghcr.io/greenroom-robotics/ros_builder:lyrical-${{ needs.release.outputs.version }}-deepstream-8.0-arm64
 
 
-          docker manifest push ghcr.io/greenroom-robotics/ros_builder:kilted-latest
-          docker manifest push ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}
+          docker manifest push ghcr.io/greenroom-robotics/ros_builder:lyrical-latest
+          docker manifest push ghcr.io/greenroom-robotics/ros_builder:lyrical-${{ needs.release.outputs.version }}
 
-          docker manifest push ghcr.io/greenroom-robotics/ros_builder:kilted-latest-deepstream-8.0
-          docker manifest push ghcr.io/greenroom-robotics/ros_builder:kilted-${{ needs.release.outputs.version }}-deepstream-8.0
+          docker manifest push ghcr.io/greenroom-robotics/ros_builder:lyrical-latest-deepstream-8.0
+          docker manifest push ghcr.io/greenroom-robotics/ros_builder:lyrical-${{ needs.release.outputs.version }}-deepstream-8.0
