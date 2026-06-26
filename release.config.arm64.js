@@ -1,6 +1,6 @@
 
 module.exports = {
-  branches: ['3.x', 'main'],
+  branches: ['3.x', 'main', 'feature/lyrical'],
   plugins:
     [
       [
