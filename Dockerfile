@@ -45,6 +45,10 @@ RUN ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastruc
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 
+# kilted launch_pytest reads fixture._pytestfixturefunction, removed in pytest 8.4
+RUN mkdir -p /etc/pip && echo "pytest<8.4" > /etc/pip/constraints.txt
+ENV PIP_CONSTRAINT=/etc/pip/constraints.txt
+
 # Install additional dependencies for deepstream/GPU image
 RUN if [ "$GPU" = "true" ]; then \
     cd /opt/nvidia/deepstream/deepstream-8.0/; \
