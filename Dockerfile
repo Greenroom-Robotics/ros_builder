@@ -66,8 +66,8 @@ fi
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
-    gcc-14-base \
-    g++-14 \
+    gcc-16-base \
+    g++-16 \
     gdb \
     cmake \
     sccache \
@@ -101,11 +101,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && dpkg --install rr.deb \
     && rm rr.deb \
     # set gcc version to latest available on ubuntu rel
-    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14 \
-    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14 \
-    && update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-14 14 \
-    && update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-14 14 \
-    && update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-14 14 \
+    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-16 16 \
+    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-16 16 \
+    && update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-16 16 \
+    && update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-16 16 \
+    && update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-16 16 \
     # Remove EXTERNALLY-MANAGED so we don't need to add --break-system-packages to pip
     && sudo rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED \
     # bootstrap rosdep
@@ -119,7 +119,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       https://raw.githubusercontent.com/colcon/colcon-metadata-repository/master/index.yaml \
     && colcon metadata update \
     # install nodejs
-    && curl -sL https://deb.nodesource.com/setup_22.x | bash - \
+    && curl -sL https://deb.nodesource.com/setup_26.x | bash - \
     # install yarn and pyright
     && apt-get install -y nodejs \
     && npm install --global yarn pyright \
@@ -141,12 +141,11 @@ ENV ROS_OVERLAY=/opt/ros/${ROS_DISTRO}
 
 # Install additional ROS packages, run script generation, and final setup
 RUN --mount=type=bind,source=scripts,target=scripts \
-    apt-get update && apt-get install -y \
-        ros-${ROS_DISTRO}-rosidl-generator-mypy \
-        ros-${ROS_DISTRO}-rosidl-generator-pydantic && \
-    rm -rf /var/lib/apt/lists/* && \
+    # apt-get update && apt-get install -y \
+    #     ros-${ROS_DISTRO}-rosidl-generator-pydantic && \
+    # rm -rf /var/lib/apt/lists/* && \
     pip install --break-system-packages --ignore-installed "pydantic>=2.0" && \
-    source ${ROS_OVERLAY}/setup.sh && python3 scripts/rosidl_generate_inplace.py && \
+    # source ${ROS_OVERLAY}/setup.sh && python3 scripts/rosidl_generate_inplace.py && \
     # Enable caching of apt packages: https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#example-cache-apt-packages \
     rm -f /etc/apt/apt.conf.d/docker-clean && \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache && \
